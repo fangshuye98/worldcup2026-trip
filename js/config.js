@@ -3,7 +3,7 @@ export const SUPABASE_URL = 'https://imorawuusspgpexqyrmm.supabase.co';
 export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imltb3Jhd3V1c3NwZ3BleHF5cm1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0OTc3NzgsImV4cCI6MjA5MDA3Mzc3OH0.aJliW88b85TLY0dFpzcS5_WAdoi4QeqJGnMf-jTrYAs';
 
 // Google Maps API key (for Places autocomplete)
-export const GOOGLE_MAPS_API_KEY = ''; // Add your key here
+export const GOOGLE_MAPS_API_KEY = 'AIzaSyDNQJymjHaDIhsdcPttvMBAbimEPBpmYtM';
 
 // Venue & airport coordinates for distance calculations
 export const VENUES = {
