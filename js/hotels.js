@@ -1,11 +1,41 @@
 import { getHotels, addHotel, deleteHotel, toggleHotelVote, subscribeToTable } from './api.js';
-import { TRAVELERS } from './config.js';
+import { TRAVELERS, VENUES, GOOGLE_MAPS_API_KEY } from './config.js';
 import { openModal, closeModal, showToast, getCurrentTravelerId } from './app.js';
+
+let mapsLoaded = false;
+
+// Load Google Maps Places API if key is configured
+function loadGoogleMaps() {
+  if (mapsLoaded || !GOOGLE_MAPS_API_KEY) return Promise.resolve(false);
+  return new Promise((resolve) => {
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places`;
+    script.onload = () => { mapsLoaded = true; resolve(true); };
+    script.onerror = () => resolve(false);
+    document.head.appendChild(script);
+  });
+}
+
+// Haversine distance in miles
+function getDistance(lat1, lng1, lat2, lng2) {
+  const R = 3959; // Earth radius in miles
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng/2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function distanceLabel(miles) {
+  return miles < 0.5 ? `${Math.round(miles * 5280)} ft` : `${miles.toFixed(1)} mi`;
+}
 
 export async function init() {
   document.getElementById('add-hotel-btn').addEventListener('click', openAddHotelModal);
   subscribeToTable('hotels', () => render());
   subscribeToTable('hotel_votes', () => render());
+  loadGoogleMaps();
   await render();
 }
 
@@ -30,6 +60,7 @@ async function render() {
   } catch (e) {
     el.innerHTML = '<div class="text-gray-400 text-center py-8">Connect Supabase to see hotels</div>';
   }
+  if (window.lucide) window.lucide.createIcons();
 }
 
 function hotelCard(h) {
@@ -38,16 +69,44 @@ function hotelCard(h) {
   const hasVoted = votes.some(v => v.traveler_id === tid);
   const addedBy = TRAVELERS.find(t => t.id === h.added_by);
   const badgeClass = h.status === 'booked' ? 'badge-booked' : h.status === 'rejected' ? 'badge-rejected' : 'badge-suggested';
+  const cityKey = h.city.toLowerCase();
+  const venue = VENUES[cityKey];
+
+  // Distance info
+  let distHTML = '';
+  if (h.lat && h.lng && venue) {
+    const stadiumDist = getDistance(h.lat, h.lng, venue.stadium.lat, venue.stadium.lng);
+    const airportDist = getDistance(h.lat, h.lng, venue.airport.lat, venue.airport.lng);
+    distHTML = `
+      <div class="flex gap-3 text-xs text-gray-500 mb-2 mt-2 bg-gray-50 rounded-lg p-2">
+        <span title="${venue.stadium.name}"><i data-lucide="trophy" class="w-3 h-3 inline text-amber-500"></i> ${distanceLabel(stadiumDist)}</span>
+        <span title="${venue.airport.name}"><i data-lucide="plane" class="w-3 h-3 inline text-blue-500"></i> ${distanceLabel(airportDist)}</span>
+      </div>`;
+  }
+
+  // Google Maps links
+  const mapsQuery = encodeURIComponent(`${h.name} ${h.address || h.city}`);
+  const restaurantsQuery = h.lat && h.lng
+    ? `https://www.google.com/maps/search/restaurants/@${h.lat},${h.lng},15z`
+    : `https://www.google.com/maps/search/restaurants+near+${mapsQuery}`;
+
   return `
     <div class="card group p-4">
-      <div class="flex justify-between items-start mb-2">
-        <span class="font-bold">${h.name}</span>
+      <div class="flex justify-between items-start mb-1">
+        <a href="https://www.google.com/maps/search/?api=1&query=${mapsQuery}" target="_blank"
+           class="font-bold hover:text-blue-600 transition-colors">${h.name}</a>
         <span class="badge ${badgeClass}">${h.status}</span>
       </div>
       ${h.address ? `<div class="text-xs text-gray-500 mb-1"><i data-lucide="map-pin" class="w-3 h-3 inline"></i> ${h.address}</div>` : ''}
+      ${distHTML}
       ${h.price_per_night ? `<div class="text-sm font-semibold text-green-600 mb-1">$${h.price_per_night}/night</div>` : ''}
-      ${h.check_in ? `<div class="text-xs text-gray-500">${h.check_in} &rarr; ${h.check_out || 'TBD'}</div>` : ''}
-      ${h.booking_url ? `<a href="${h.booking_url}" target="_blank" class="text-xs text-blue-500 hover:underline">Booking link</a>` : ''}
+      ${h.check_in ? `<div class="text-xs text-gray-500"><i data-lucide="calendar" class="w-3 h-3 inline"></i> ${h.check_in} → ${h.check_out || 'TBD'}</div>` : ''}
+      <div class="flex gap-2 mt-2 text-xs">
+        ${h.booking_url ? `<a href="${h.booking_url}" target="_blank" class="text-blue-500 hover:underline">Booking</a><span class="text-gray-300">·</span>` : ''}
+        <a href="${restaurantsQuery}" target="_blank" class="text-orange-500 hover:underline flex items-center gap-0.5">
+          <i data-lucide="utensils" class="w-3 h-3"></i> Nearby restaurants
+        </a>
+      </div>
       ${h.notes ? `<div class="text-xs text-gray-400 mt-1">${h.notes}</div>` : ''}
       <div class="flex items-center justify-between mt-3 pt-2 border-t border-gray-100">
         <div class="flex items-center gap-1">
@@ -74,7 +133,6 @@ window._voteHotel = async (id) => {
     await toggleHotelVote(id, tid);
     render();
   } catch (e) { showToast('Vote error: ' + e.message, 'error'); }
-  if (window.lucide) window.lucide.createIcons();
 };
 
 window._deleteHotel = async (id) => {
@@ -88,9 +146,20 @@ function openAddHotelModal() {
   if (!tid) { showToast('Please select who you are first', 'error'); return; }
   const html = `
     <div class="grid gap-3">
-      <div><label class="form-label">Hotel Name</label><input id="h-name" class="form-input" placeholder="Hyatt Regency Atlanta"></div>
+      <div>
+        <label class="form-label">Search Hotel</label>
+        <input id="h-search" class="form-input" placeholder="Type hotel name to search..." autocomplete="off">
+        <input id="h-name" type="hidden">
+        <input id="h-address" type="hidden">
+        <input id="h-lat" type="hidden">
+        <input id="h-lng" type="hidden">
+        <div id="h-preview" class="hidden mt-2 p-3 bg-blue-50 rounded-lg text-sm">
+          <div id="h-preview-name" class="font-bold"></div>
+          <div id="h-preview-address" class="text-xs text-gray-500 mt-0.5"></div>
+          <div id="h-preview-dist" class="text-xs text-gray-500 mt-1"></div>
+        </div>
+      </div>
       <div><label class="form-label">City</label><select id="h-city" class="form-input"><option value="Atlanta">Atlanta</option><option value="Boston">Boston</option></select></div>
-      <div><label class="form-label">Address</label><input id="h-address" class="form-input" placeholder="Optional"></div>
       <div class="grid grid-cols-2 gap-3">
         <div><label class="form-label">Price/Night ($)</label><input id="h-price" type="number" class="form-input" placeholder="150"></div>
         <div><label class="form-label">Status</label><select id="h-status" class="form-input"><option value="suggested">Suggested</option><option value="booked">Booked</option><option value="rejected">Rejected</option></select></div>
@@ -102,12 +171,16 @@ function openAddHotelModal() {
       <div><label class="form-label">Booking URL</label><input id="h-url" class="form-input" placeholder="https://..."></div>
       <div><label class="form-label">Notes</label><input id="h-notes" class="form-input" placeholder="Optional"></div>
     </div>`;
-  openModal('Add Hotel Option', html, async () => {
+  openModal('Add Hotel', html, async () => {
+    const name = document.getElementById('h-name').value || document.getElementById('h-search').value;
+    if (!name.trim()) { showToast('Hotel name is required', 'error'); return; }
     try {
       await addHotel({
-        name: document.getElementById('h-name').value,
+        name: name.trim(),
         city: document.getElementById('h-city').value,
         address: document.getElementById('h-address').value,
+        lat: parseFloat(document.getElementById('h-lat').value) || null,
+        lng: parseFloat(document.getElementById('h-lng').value) || null,
         price_per_night: document.getElementById('h-price').value || null,
         status: document.getElementById('h-status').value,
         check_in: document.getElementById('h-checkin').value || null,
@@ -121,4 +194,63 @@ function openAddHotelModal() {
       render();
     } catch (e) { showToast('Error: ' + e.message, 'error'); }
   });
+
+  // Setup Places Autocomplete if available
+  setTimeout(() => setupAutocomplete(), 100);
+}
+
+function setupAutocomplete() {
+  const input = document.getElementById('h-search');
+  if (!input) return;
+
+  if (mapsLoaded && window.google && window.google.maps) {
+    const autocomplete = new google.maps.places.Autocomplete(input, {
+      types: ['lodging'],
+      fields: ['name', 'formatted_address', 'geometry'],
+    });
+    autocomplete.addListener('place_changed', () => {
+      const place = autocomplete.getPlace();
+      if (!place.geometry) return;
+      fillPlaceDetails(place.name, place.formatted_address,
+        place.geometry.location.lat(), place.geometry.location.lng());
+    });
+  } else {
+    // Fallback: manual entry, just use search text as hotel name
+    input.addEventListener('input', () => {
+      document.getElementById('h-name').value = input.value;
+    });
+  }
+}
+
+function fillPlaceDetails(name, address, lat, lng) {
+  document.getElementById('h-name').value = name;
+  document.getElementById('h-address').value = address || '';
+  document.getElementById('h-lat').value = lat;
+  document.getElementById('h-lng').value = lng;
+
+  // Show preview
+  const preview = document.getElementById('h-preview');
+  document.getElementById('h-preview-name').textContent = name;
+  document.getElementById('h-preview-address').textContent = address || '';
+
+  // Calculate distances based on selected city
+  const cityKey = document.getElementById('h-city').value.toLowerCase();
+  const venue = VENUES[cityKey];
+  if (venue && lat && lng) {
+    const stadiumDist = getDistance(lat, lng, venue.stadium.lat, venue.stadium.lng);
+    const airportDist = getDistance(lat, lng, venue.airport.lat, venue.airport.lng);
+    document.getElementById('h-preview-dist').innerHTML =
+      `📍 ${distanceLabel(stadiumDist)} to ${venue.stadium.name} · ${distanceLabel(airportDist)} to ${venue.airport.name}`;
+  }
+  preview.classList.remove('hidden');
+
+  // Auto-detect city from address
+  if (address) {
+    const lower = address.toLowerCase();
+    if (lower.includes('atlanta') || lower.includes(', ga')) {
+      document.getElementById('h-city').value = 'Atlanta';
+    } else if (lower.includes('boston') || lower.includes('foxborough') || lower.includes(', ma')) {
+      document.getElementById('h-city').value = 'Boston';
+    }
+  }
 }
