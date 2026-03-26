@@ -5,7 +5,7 @@ export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 // Traveler definitions
 export const TRAVELERS = [
   { id: 'traveler-1', name: 'Fangshu', origin: 'Seattle, WA', airport: 'SEA', color: '#2563EB', matches: ['atlanta', 'boston'] },
-  { id: 'traveler-2', name: 'Jikai', origin: 'Seattle, WA', airport: 'SEA', color: '#16A34A', matches: ['atlanta', 'boston'] },
+  { id: 'traveler-2', name: 'Jikai', origin: 'Seattle, WA', airport: 'SEA', color: '#16A34A', matches: ['atlanta'] },
   { id: 'traveler-3', name: 'Zhijiong', origin: 'Los Angeles, CA', airport: 'LAX', color: '#EA580C', matches: ['atlanta', 'boston'] },
   { id: 'traveler-4', name: 'Chengpeng', origin: 'Bay Area, CA', airport: 'SJC', color: '#9333EA', matches: ['atlanta'] },
 ];
@@ -19,8 +19,8 @@ export const MATCHES = [
     cityKey: 'atlanta',
     venue: 'Mercedes-Benz Stadium',
     date: '2026-06-15',
-    time: 'TBD',
-    teams: 'TBD vs TBD',
+    time: '4:00 PM ET',
+    teams: 'Spain vs Cape Verde',
     attendeeIds: ['traveler-1', 'traveler-2', 'traveler-3', 'traveler-4'],
   },
   {
@@ -30,9 +30,9 @@ export const MATCHES = [
     cityKey: 'boston',
     venue: 'Gillette Stadium, Foxborough',
     date: '2026-06-16',
-    time: 'TBD',
-    teams: 'TBD vs TBD',
-    attendeeIds: ['traveler-1', 'traveler-2'],
+    time: '10:00 PM ET',
+    teams: 'TBD (Playoff) vs Norway',
+    attendeeIds: ['traveler-1', 'traveler-3'],
   },
 ];
 
