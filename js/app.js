@@ -128,4 +128,9 @@ async function init() {
   if (window.lucide) window.lucide.createIcons();
 }
 
-document.addEventListener('DOMContentLoaded', init);
+// Modules are deferred, so DOM is ready. Run init immediately.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
