@@ -1,6 +1,6 @@
-// Supabase connection - FILL THESE IN after creating your Supabase project
-export const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-export const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+// Supabase connection
+export const SUPABASE_URL = 'https://imorawuusspgpexqyrmm.supabase.co';
+export const SUPABASE_ANON_KEY = 'sb_publishable_jQZV0PoaipTBPU_qW_Pgbg_gGOFxIeg';
 
 // Traveler definitions
 export const TRAVELERS = [
