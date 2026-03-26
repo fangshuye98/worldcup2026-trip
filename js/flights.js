@@ -85,20 +85,33 @@ function openAddFlightModal() {
   const travelerOptions = TRAVELERS.map(t =>
     `<option value="${t.id}" ${t.id === tid ? 'selected' : ''}>${t.name}</option>`
   ).join('');
+  const tzOptions = [
+    { label: 'Pacific (PT)', offset: '-07:00' },
+    { label: 'Mountain (MT)', offset: '-06:00' },
+    { label: 'Central (CT)', offset: '-05:00' },
+    { label: 'Eastern (ET)', offset: '-04:00' },
+  ];
+  const tzSelect = tzOptions.map(tz =>
+    `<option value="${tz.offset}">${tz.label}</option>`
+  ).join('');
   const html = `
     <div class="grid gap-3">
       <div><label class="form-label">Traveler</label><select id="f-traveler" class="form-input">${travelerOptions}</select></div>
       <div class="grid grid-cols-2 gap-3">
         <div><label class="form-label">Airline</label><input id="f-airline" class="form-input" placeholder="Delta"></div>
-        <div><label class="form-label">Flight #</label><input id="f-number" class="form-input" placeholder="DL0589"></div>
+        <div><label class="form-label">Flight #</label><input id="f-number" class="form-input" placeholder="DL0569"></div>
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div><label class="form-label">From</label><input id="f-from" class="form-input" placeholder="SEA"></div>
         <div><label class="form-label">To</label><input id="f-to" class="form-input" placeholder="ATL"></div>
       </div>
       <div class="grid grid-cols-2 gap-3">
-        <div><label class="form-label">Departure</label><input id="f-depart" type="datetime-local" class="form-input"></div>
-        <div><label class="form-label">Arrival</label><input id="f-arrive" type="datetime-local" class="form-input"></div>
+        <div><label class="form-label">Departure (local time)</label><input id="f-depart" type="datetime-local" class="form-input"></div>
+        <div><label class="form-label">Dep. Timezone</label><select id="f-dep-tz" class="form-input">${tzSelect}</select></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="form-label">Arrival (local time)</label><input id="f-arrive" type="datetime-local" class="form-input"></div>
+        <div><label class="form-label">Arr. Timezone</label><select id="f-arr-tz" class="form-input">${tzSelect}</select></div>
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div><label class="form-label">Status</label><select id="f-status" class="form-input"><option value="booked">Booked</option><option value="looking">Looking</option></select></div>
@@ -108,14 +121,18 @@ function openAddFlightModal() {
     </div>`;
   openModal('Add Flight', html, async () => {
     try {
+      const depVal = document.getElementById('f-depart').value;
+      const arrVal = document.getElementById('f-arrive').value;
+      const depTz = document.getElementById('f-dep-tz').value;
+      const arrTz = document.getElementById('f-arr-tz').value;
       await addFlight({
         traveler_id: document.getElementById('f-traveler').value,
         airline: document.getElementById('f-airline').value,
         flight_number: document.getElementById('f-number').value,
         origin_airport: document.getElementById('f-from').value.toUpperCase(),
         destination_airport: document.getElementById('f-to').value.toUpperCase(),
-        departure_time: document.getElementById('f-depart').value || null,
-        arrival_time: document.getElementById('f-arrive').value || null,
+        departure_time: depVal ? depVal + depTz : null,
+        arrival_time: arrVal ? arrVal + arrTz : null,
         status: document.getElementById('f-status').value,
         price: document.getElementById('f-price').value || null,
         notes: document.getElementById('f-notes').value,
