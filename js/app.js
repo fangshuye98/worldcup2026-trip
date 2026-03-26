@@ -89,7 +89,11 @@ function setupModal() {
 
 // ---- Initialization ----
 async function init() {
-  initSupabase();
+  try {
+    initSupabase();
+  } catch (e) {
+    console.warn('Supabase init failed:', e.message);
+  }
 
   setupIdentity();
   setupModal();

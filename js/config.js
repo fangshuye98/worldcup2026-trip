@@ -4,10 +4,10 @@ export const SUPABASE_ANON_KEY = 'sb_publishable_jQZV0PoaipTBPU_qW_Pgbg_gGOFxIeg
 
 // Traveler definitions
 export const TRAVELERS = [
-  { id: 'traveler-1', name: 'Fang', origin: 'Seattle, WA', airport: 'SEA', color: '#2563EB', matches: ['atlanta', 'boston'] },
-  { id: 'traveler-2', name: 'Friend 2', origin: 'Seattle, WA', airport: 'SEA', color: '#16A34A', matches: ['atlanta', 'boston'] },
-  { id: 'traveler-3', name: 'Friend 3', origin: 'Los Angeles, CA', airport: 'LAX', color: '#EA580C', matches: ['atlanta', 'boston'] },
-  { id: 'traveler-4', name: 'Friend 4', origin: 'Bay Area, CA', airport: 'SFO', color: '#9333EA', matches: ['atlanta'] },
+  { id: 'traveler-1', name: 'Fangshu', origin: 'Seattle, WA', airport: 'SEA', color: '#2563EB', matches: ['atlanta', 'boston'] },
+  { id: 'traveler-2', name: 'Jikai', origin: 'Seattle, WA', airport: 'SEA', color: '#16A34A', matches: ['atlanta', 'boston'] },
+  { id: 'traveler-3', name: 'Zhijiong', origin: 'Los Angeles, CA', airport: 'LAX', color: '#EA580C', matches: ['atlanta', 'boston'] },
+  { id: 'traveler-4', name: 'Chengpeng', origin: 'Bay Area, CA', airport: 'SJC', color: '#9333EA', matches: ['atlanta'] },
 ];
 
 // Match definitions
