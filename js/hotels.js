@@ -90,6 +90,18 @@ function hotelCard(h) {
     ? `https://www.google.com/maps/search/restaurants/@${h.lat},${h.lng},15z`
     : `https://www.google.com/maps/search/restaurants+near+${mapsQuery}`;
 
+  // Embedded map
+  let mapHTML = '';
+  if (h.lat && h.lng) {
+    const bbox = `${h.lng - 0.008},${h.lat - 0.005},${h.lng + 0.008},${h.lat + 0.005}`;
+    mapHTML = `
+      <div class="mt-2 rounded-lg overflow-hidden border border-gray-200" style="height:140px">
+        <iframe width="100%" height="140" frameborder="0" scrolling="no" loading="lazy"
+          src="https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${h.lat},${h.lng}">
+        </iframe>
+      </div>`;
+  }
+
   return `
     <div class="card group p-4">
       <div class="flex justify-between items-start mb-1">
@@ -98,6 +110,7 @@ function hotelCard(h) {
         <span class="badge ${badgeClass}">${h.status}</span>
       </div>
       ${h.address ? `<div class="text-xs text-gray-500 mb-1"><i data-lucide="map-pin" class="w-3 h-3 inline"></i> ${h.address}</div>` : ''}
+      ${mapHTML}
       ${distHTML}
       ${h.price_per_night ? `<div class="text-sm font-semibold text-green-600 mb-1">$${h.price_per_night}/night</div>` : ''}
       ${h.check_in ? `<div class="text-xs text-gray-500"><i data-lucide="calendar" class="w-3 h-3 inline"></i> ${h.check_in} → ${h.check_out || 'TBD'}</div>` : ''}
