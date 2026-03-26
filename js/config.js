@@ -56,11 +56,11 @@ export const SEED_FLIGHTS = [
     airline: 'Delta',
     origin_airport: 'BOS',
     destination_airport: 'SEA',
-    departure_time: '2026-06-17T15:35:00-07:00',
-    arrival_time: '2026-06-17T22:05:00-07:00',
+    departure_time: '2026-06-17T16:25:00-07:00',
+    arrival_time: '2026-06-17T22:49:00-07:00',
     status: 'booked',
     price: null,
-    notes: 'Jun 17 - Departs 6:35 PM ET (3:35 PM PT), arrives 10:05 PM PT',
+    notes: 'Jun 17 - Departs 7:25 PM ET (4:25 PM PT), arrives 10:49 PM PT',
   },
 ];
 
