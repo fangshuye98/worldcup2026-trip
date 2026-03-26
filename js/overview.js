@@ -46,6 +46,13 @@ function getTravelerColor(id) {
   return t ? t.color : '#999';
 }
 
+function fmtMatchDate(dateStr) {
+  // Parse YYYY-MM-DD directly to avoid timezone shift
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const date = new Date(y, m - 1, d);
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
 function fmtDate(dateStr) {
   const d = new Date(dateStr);
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -64,10 +71,10 @@ async function renderTimeline() {
   MATCHES.forEach(m => {
     const attendees = m.attendeeIds.map(id => getTravelerName(id));
     events.push({
-      sortTime: new Date(m.date + 'T00:00:00'),
+      sortTime: new Date(m.date + 'T12:00:00'),
       type: 'match',
       html: `
-        <div><span class="font-bold text-sm">${fmtDate(m.date)}</span>
+        <div><span class="font-bold text-sm">${fmtMatchDate(m.date)}</span>
           <span class="text-sm font-semibold" style="color:var(--fifa-gold)">⚽ Match ${m.number} - ${m.city}</span></div>
         <div class="text-xs text-gray-500 mt-0.5">${m.teams} · ${m.time}</div>
         <div class="text-xs text-gray-400 mt-0.5">${m.venue}</div>
