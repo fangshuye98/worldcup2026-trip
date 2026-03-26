@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World Cup 2026 Trip Planner</title>
+  <meta name="description" content="FIFA World Cup 2026 group trip dashboard - Atlanta & Boston">
+  <link rel="icon" href="assets/favicon.svg">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'fifa-blue': '#1A237E',
+            'fifa-red': '#C41E3A',
+            'fifa-gold': '#D4AF37',
+            'fifa-light': '#F0F4FF',
+            'fifa-dark': '#0D1442',
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body class="bg-fifa-light min-h-screen">
+
+  <!-- HEADER -->
+  <header class="bg-fifa-blue text-white shadow-lg">
+    <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <i data-lucide="trophy" class="w-7 h-7 text-fifa-gold"></i>
+        <div>
+          <h1 class="text-lg font-extrabold tracking-tight leading-tight">World Cup 2026</h1>
+          <p class="text-xs text-white/60">Atlanta & Boston Trip Planner</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <i data-lucide="user" class="w-4 h-4 text-white/60"></i>
+        <select id="identity-select" class="bg-white/10 text-white text-sm rounded-lg px-3 py-1.5 border border-white/20 focus:outline-none focus:ring-2 focus:ring-fifa-gold">
+          <option value="">Who are you?</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- TAB BAR -->
+  <nav id="tab-bar" class="bg-white shadow-sm sticky top-0 z-40 overflow-x-auto">
+    <div class="max-w-5xl mx-auto px-4 flex">
+      <button id="tab-btn-overview" class="tab-btn tab-active flex items-center gap-1.5 px-4 py-3 text-sm text-gray-600" data-tab="overview">
+        <i data-lucide="home" class="w-4 h-4"></i><span>Overview</span>
+      </button>
+      <button id="tab-btn-flights" class="tab-btn flex items-center gap-1.5 px-4 py-3 text-sm text-gray-600" data-tab="flights">
+        <i data-lucide="plane" class="w-4 h-4"></i><span>Flights</span>
+      </button>
+      <button id="tab-btn-hotels" class="tab-btn flex items-center gap-1.5 px-4 py-3 text-sm text-gray-600" data-tab="hotels">
+        <i data-lucide="bed-double" class="w-4 h-4"></i><span>Hotels</span>
+      </button>
+      <button id="tab-btn-restaurants" class="tab-btn flex items-center gap-1.5 px-4 py-3 text-sm text-gray-600" data-tab="restaurants">
+        <i data-lucide="utensils" class="w-4 h-4"></i><span>Restaurants</span>
+      </button>
+      <button id="tab-btn-matches" class="tab-btn flex items-center gap-1.5 px-4 py-3 text-sm text-gray-600" data-tab="matches">
+        <i data-lucide="trophy" class="w-4 h-4"></i><span>Matches</span>
+      </button>
+      <button id="tab-btn-notes" class="tab-btn flex items-center gap-1.5 px-4 py-3 text-sm text-gray-600" data-tab="notes">
+        <i data-lucide="clipboard-list" class="w-4 h-4"></i><span>Notes</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="max-w-5xl mx-auto px-4 py-6">
+
+    <!-- OVERVIEW TAB -->
+    <section id="tab-overview">
+      <div class="text-center mb-8">
+        <h2 class="text-2xl font-extrabold mb-1" style="color:var(--fifa-blue)">FIFA World Cup 2026</h2>
+        <p class="text-sm text-gray-500">Countdown to Match Day</p>
+        <div id="countdown" class="mt-4"></div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8" id="stats"></div>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div>
+          <h3 class="font-bold text-lg mb-3" style="color:var(--fifa-blue)">Trip Timeline</h3>
+          <div id="timeline"></div>
+        </div>
+        <div>
+          <h3 class="font-bold text-lg mb-3" style="color:var(--fifa-blue)">Travelers</h3>
+          <div id="traveler-cards" class="grid gap-3"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FLIGHTS TAB -->
+    <section id="tab-flights" class="hidden">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold" style="color:var(--fifa-blue)">Flights</h2>
+        <button id="add-flight-btn" class="bg-fifa-blue text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-fifa-dark transition flex items-center gap-1">
+          <i data-lucide="plus" class="w-4 h-4"></i> Add Flight
+        </button>
+      </div>
+      <div id="flights-list"></div>
+    </section>
+
+    <!-- HOTELS TAB -->
+    <section id="tab-hotels" class="hidden">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold" style="color:var(--fifa-blue)">Hotels</h2>
+        <button id="add-hotel-btn" class="bg-fifa-blue text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-fifa-dark transition flex items-center gap-1">
+          <i data-lucide="plus" class="w-4 h-4"></i> Add Hotel
+        </button>
+      </div>
+      <div id="hotels-list"></div>
+    </section>
+
+    <!-- RESTAURANTS TAB -->
+    <section id="tab-restaurants" class="hidden">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold" style="color:var(--fifa-blue)">Restaurants</h2>
+        <button id="add-restaurant-btn" class="bg-fifa-blue text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-fifa-dark transition flex items-center gap-1">
+          <i data-lucide="plus" class="w-4 h-4"></i> Add Restaurant
+        </button>
+      </div>
+      <div class="flex gap-2 mb-4 flex-wrap">
+        <button class="meal-filter-btn bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-medium" data-meal="all">All</button>
+        <button class="meal-filter-btn px-3 py-1 rounded-full text-xs font-medium text-gray-500 bg-gray-100" data-meal="breakfast">Breakfast</button>
+        <button class="meal-filter-btn px-3 py-1 rounded-full text-xs font-medium text-gray-500 bg-gray-100" data-meal="lunch">Lunch</button>
+        <button class="meal-filter-btn px-3 py-1 rounded-full text-xs font-medium text-gray-500 bg-gray-100" data-meal="dinner">Dinner</button>
+      </div>
+      <div id="restaurants-list"></div>
+    </section>
+
+    <!-- MATCHES TAB -->
+    <section id="tab-matches" class="hidden">
+      <h2 class="text-xl font-bold mb-4" style="color:var(--fifa-blue)">Matches</h2>
+      <div id="matches-list"></div>
+    </section>
+
+    <!-- NOTES TAB -->
+    <section id="tab-notes" class="hidden">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold" style="color:var(--fifa-blue)">Shared Notes</h2>
+        <button id="add-note-btn" class="bg-fifa-blue text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-fifa-dark transition flex items-center gap-1">
+          <i data-lucide="plus" class="w-4 h-4"></i> Add Note
+        </button>
+      </div>
+      <div id="notes-list"></div>
+    </section>
+  </main>
+
+  <!-- MODAL -->
+  <div id="modal-overlay" class="modal-overlay hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="modal-content bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between p-4 border-b">
+        <h3 id="modal-title" class="font-bold text-lg" style="color:var(--fifa-blue)">Modal</h3>
+        <button id="modal-close" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div id="modal-body" class="p-4"></div>
+      <div class="flex justify-end gap-2 p-4 border-t">
+        <button onclick="document.getElementById('modal-overlay').classList.add('hidden')" class="px-4 py-2 text-sm text-gray-500 hover:text-gray-700">Cancel</button>
+        <button id="modal-submit" class="px-4 py-2 text-sm bg-fifa-blue text-white rounded-lg hover:bg-fifa-dark font-medium">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="hidden fixed bottom-4 right-4 z-50"></div>
+
+  <!-- Footer -->
+  <footer class="text-center text-xs text-gray-300 py-6">
+    FIFA World Cup 2026 Trip Planner
+  </footer>
+
+  <!-- App -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
