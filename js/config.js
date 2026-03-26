@@ -40,7 +40,7 @@ export const MATCHES = [
 export const SEED_FLIGHTS = [
   {
     traveler_id: 'traveler-1',
-    flight_number: 'DL0589',
+    flight_number: 'DL0569',
     airline: 'Delta',
     origin_airport: 'SEA',
     destination_airport: 'ATL',
@@ -56,11 +56,11 @@ export const SEED_FLIGHTS = [
     airline: 'Delta',
     origin_airport: 'BOS',
     destination_airport: 'SEA',
-    departure_time: '2026-06-16T18:35:00',
-    arrival_time: '2026-06-16T22:05:00',
+    departure_time: '2026-06-17T18:35:00',
+    arrival_time: '2026-06-17T22:05:00',
     status: 'booked',
     price: null,
-    notes: 'Departs 6:35 PM ET (3:35 PM PT), arrives 10:05 PM PT',
+    notes: 'Jun 17 - Departs 6:35 PM ET (3:35 PM PT), arrives 10:05 PM PT',
   },
 ];
 

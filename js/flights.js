@@ -45,7 +45,7 @@ function flightCard(f, traveler) {
   const arrTime = f.arrival_time ? new Date(f.arrival_time).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'TBD';
   const badgeClass = f.status === 'booked' ? 'badge-booked' : 'badge-looking';
   return `
-    <div class="card p-4" style="border-top: 3px solid ${traveler.color}">
+    <div class="card group p-4" style="border-top: 3px solid ${traveler.color}">
       <div class="flex justify-between items-start mb-2">
         <div>
           <span class="font-bold text-lg">${f.airline || ''} ${f.flight_number || ''}</span>
@@ -60,8 +60,10 @@ function flightCard(f, traveler) {
       <div class="text-xs text-gray-500 mb-1"><i data-lucide="clock" class="w-3 h-3 inline"></i> ${depTime} &rarr; ${arrTime}</div>
       ${f.price ? `<div class="text-xs text-gray-500"><i data-lucide="dollar-sign" class="w-3 h-3 inline"></i> $${f.price}</div>` : ''}
       ${f.notes ? `<div class="text-xs text-gray-400 mt-1">${f.notes}</div>` : ''}
-      <div class="mt-3 flex gap-2">
-        <button onclick="window._deleteFlight('${f.id}')" class="text-xs text-red-400 hover:text-red-600">Delete</button>
+      <div class="mt-2 flex justify-end">
+        <button onclick="window._deleteFlight('${f.id}')" class="opacity-0 group-hover:opacity-100 transition-opacity text-gray-300 hover:text-red-400 p-1" title="Delete">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+        </button>
       </div>
     </div>`;
 }

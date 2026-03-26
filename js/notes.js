@@ -27,7 +27,7 @@ function noteCard(n) {
   const date = new Date(n.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
   const rendered = window.marked ? window.marked.parse(n.content || '') : (n.content || '');
   return `
-    <div class="card p-4 mb-3 ${n.pinned ? 'ring-2 ring-yellow-300' : ''}">
+    <div class="card group p-4 mb-3 ${n.pinned ? 'ring-2 ring-yellow-300' : ''}">
       <div class="flex justify-between items-start mb-2">
         <div class="flex items-center gap-2">
           ${n.pinned ? '<i data-lucide="pin" class="w-4 h-4 text-yellow-500"></i>' : ''}
@@ -37,7 +37,9 @@ function noteCard(n) {
           <button onclick="window._togglePinNote('${n.id}', ${!n.pinned})" class="text-gray-400 hover:text-yellow-500" title="${n.pinned ? 'Unpin' : 'Pin'}">
             <i data-lucide="pin" class="w-3.5 h-3.5"></i>
           </button>
-          <button onclick="window._deleteNote('${n.id}')" class="text-red-400 hover:text-red-600">Delete</button>
+          <button onclick="window._deleteNote('${n.id}')" class="opacity-0 group-hover:opacity-100 transition-opacity text-gray-300 hover:text-red-400 p-1" title="Delete">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          </button>
         </div>
       </div>
       <div class="prose prose-sm max-w-none text-gray-600 text-sm mb-2">${rendered}</div>

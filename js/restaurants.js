@@ -60,7 +60,7 @@ function restaurantCard(r) {
   const hasVoted = votes.some(v => v.traveler_id === tid);
   const addedBy = TRAVELERS.find(t => t.id === r.added_by);
   return `
-    <div class="card p-4">
+    <div class="card group p-4">
       <div class="flex justify-between items-start mb-1">
         <span class="font-bold">${r.name}</span>
         <span class="text-sm">${priceDisplay(r.price_range)}</span>
@@ -81,7 +81,9 @@ function restaurantCard(r) {
         </div>
         <div class="flex gap-2 items-center">
           ${addedBy ? `<span class="text-xs text-gray-300">by ${addedBy.name}</span>` : ''}
-          <button onclick="window._deleteRestaurant('${r.id}')" class="text-xs text-red-400 hover:text-red-600">Delete</button>
+          <button onclick="window._deleteRestaurant('${r.id}')" class="opacity-0 group-hover:opacity-100 transition-opacity text-gray-300 hover:text-red-400 p-1" title="Delete">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          </button>
         </div>
       </div>
     </div>`;

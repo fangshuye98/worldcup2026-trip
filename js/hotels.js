@@ -39,7 +39,7 @@ function hotelCard(h) {
   const addedBy = TRAVELERS.find(t => t.id === h.added_by);
   const badgeClass = h.status === 'booked' ? 'badge-booked' : h.status === 'rejected' ? 'badge-rejected' : 'badge-suggested';
   return `
-    <div class="card p-4">
+    <div class="card group p-4">
       <div class="flex justify-between items-start mb-2">
         <span class="font-bold">${h.name}</span>
         <span class="badge ${badgeClass}">${h.status}</span>
@@ -59,7 +59,9 @@ function hotelCard(h) {
         </div>
         <div class="flex gap-2 items-center">
           ${addedBy ? `<span class="text-xs text-gray-300">by ${addedBy.name}</span>` : ''}
-          <button onclick="window._deleteHotel('${h.id}')" class="text-xs text-red-400 hover:text-red-600">Delete</button>
+          <button onclick="window._deleteHotel('${h.id}')" class="opacity-0 group-hover:opacity-100 transition-opacity text-gray-300 hover:text-red-400 p-1" title="Delete">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          </button>
         </div>
       </div>
     </div>`;
