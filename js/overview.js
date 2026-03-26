@@ -5,9 +5,8 @@ let countdownInterval;
 
 export async function init() {
   startCountdown();
-  renderTimeline();
   renderTravelers();
-  await renderStats();
+  await Promise.all([renderTimeline(), renderStats()]);
 }
 
 function startCountdown() {
@@ -37,34 +36,97 @@ function startCountdown() {
   countdownInterval = setInterval(update, 1000);
 }
 
-function renderTimeline() {
+function getTravelerName(id) {
+  const t = TRAVELERS.find(x => x.id === id);
+  return t ? t.name : id;
+}
+
+function getTravelerColor(id) {
+  const t = TRAVELERS.find(x => x.id === id);
+  return t ? t.color : '#999';
+}
+
+function fmtDate(dateStr) {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function fmtTime(dateStr) {
+  const d = new Date(dateStr);
+  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+async function renderTimeline() {
   const el = document.getElementById('timeline');
-  el.innerHTML = `
-    <div class="timeline-item pb-4">
-      <div class="timeline-dot active"></div>
-      <div><span class="font-bold text-sm">Jun 14</span> <span class="text-gray-500 text-sm">- Arrive in Atlanta</span></div>
-      <div class="text-xs text-gray-400 mt-1">Everyone flies in from SEA, LAX, SFO</div>
-    </div>
-    <div class="timeline-item pb-4">
-      <div class="timeline-dot active"></div>
-      <div><span class="font-bold text-sm">Jun 15</span> <span class="text-sm font-semibold" style="color:var(--fifa-gold)">Match 14 - Atlanta</span></div>
-      <div class="text-xs text-gray-400 mt-1">Mercedes-Benz Stadium - All 4 attend</div>
-    </div>
-    <div class="timeline-item pb-4">
-      <div class="timeline-dot"></div>
-      <div><span class="font-bold text-sm">Jun 15 evening</span> <span class="text-gray-500 text-sm">- Fly to Boston (2 people)</span></div>
-      <div class="text-xs text-gray-400 mt-1">2 continue to Boston, others return home</div>
-    </div>
-    <div class="timeline-item pb-4">
-      <div class="timeline-dot active"></div>
-      <div><span class="font-bold text-sm">Jun 16</span> <span class="text-sm font-semibold" style="color:var(--fifa-gold)">Match 18 - Boston</span></div>
-      <div class="text-xs text-gray-400 mt-1">Gillette Stadium, Foxborough - 2 attend</div>
-    </div>
-    <div class="timeline-item">
-      <div class="timeline-dot"></div>
-      <div><span class="font-bold text-sm">Jun 16 evening</span> <span class="text-gray-500 text-sm">- Return home</span></div>
-      <div class="text-xs text-gray-400 mt-1">1 to Seattle, 1 to LA</div>
-    </div>`;
+  const events = [];
+
+  // Add matches as events
+  MATCHES.forEach(m => {
+    const attendees = m.attendeeIds.map(id => getTravelerName(id));
+    events.push({
+      sortTime: new Date(m.date + 'T00:00:00'),
+      type: 'match',
+      html: `
+        <div><span class="font-bold text-sm">${fmtDate(m.date)}</span>
+          <span class="text-sm font-semibold" style="color:var(--fifa-gold)">⚽ Match ${m.number} - ${m.city}</span></div>
+        <div class="text-xs text-gray-500 mt-0.5">${m.teams} · ${m.time}</div>
+        <div class="text-xs text-gray-400 mt-0.5">${m.venue}</div>
+        <div class="flex gap-1 mt-1 flex-wrap">${m.attendeeIds.map(id =>
+          `<span class="inline-flex items-center gap-1 text-xs"><span class="traveler-dot" style="background:${getTravelerColor(id)}"></span>${getTravelerName(id)}</span>`
+        ).join('')}</div>`,
+    });
+  });
+
+  // Try to load flights from Supabase
+  try {
+    const flights = await getFlights();
+    flights.forEach(f => {
+      const name = getTravelerName(f.traveler_id);
+      const color = getTravelerColor(f.traveler_id);
+      const depDate = f.departure_time ? fmtDate(f.departure_time) : '?';
+      const depTime = f.departure_time ? fmtTime(f.departure_time) : '';
+      const arrTime = f.arrival_time ? fmtTime(f.arrival_time) : '';
+      const statusBadge = f.status === 'booked'
+        ? '<span class="badge badge-booked text-xs ml-1">Booked</span>'
+        : '<span class="badge badge-looking text-xs ml-1">Looking</span>';
+      events.push({
+        sortTime: f.departure_time ? new Date(f.departure_time) : new Date(0),
+        type: 'flight',
+        html: `
+          <div class="flex items-center gap-1.5">
+            <span class="font-bold text-sm">${depDate}</span>
+            <span class="text-sm text-gray-500">✈ ${f.origin_airport} → ${f.destination_airport}</span>
+            ${statusBadge}
+          </div>
+          <div class="text-xs text-gray-500 mt-0.5">${f.flight_number || ''} ${f.airline || ''} · ${depTime} → ${arrTime}</div>
+          <div class="flex items-center gap-1 mt-1">
+            <span class="traveler-dot" style="background:${color}"></span>
+            <span class="text-xs text-gray-500">${name}</span>
+          </div>
+          ${f.notes ? `<div class="text-xs text-gray-400 mt-0.5">${f.notes}</div>` : ''}`,
+      });
+    });
+  } catch (e) {
+    // No flights loaded — timeline will just show matches
+  }
+
+  // Sort by time
+  events.sort((a, b) => a.sortTime - b.sortTime);
+
+  if (events.length === 0) {
+    el.innerHTML = '<div class="text-gray-400 text-sm">No events yet</div>';
+    return;
+  }
+
+  el.innerHTML = events.map((ev, i) => {
+    const isMatch = ev.type === 'match';
+    const isLast = i === events.length - 1;
+    return `
+      <div class="timeline-item ${isLast ? '' : 'pb-4'}">
+        <div class="timeline-dot ${isMatch ? 'active' : ''}"></div>
+        ${ev.html}
+      </div>`;
+  }).join('');
 }
 
 function renderTravelers() {
