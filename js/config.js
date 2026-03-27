@@ -17,7 +17,7 @@ export const VENUES = {
   },
   seattle: {
     stadium: { name: 'Lumen Field', lat: 47.5952, lng: -122.3316 },
-    airport: { name: 'SEA Airport', lat: 42.4502, lng: -122.3088 },
+    airport: { name: 'SEA Airport', lat: 47.4502, lng: -122.3088 },
   },
   los_angeles: {
     stadium: { name: 'SoFi Stadium', lat: 33.9535, lng: -118.3392 },
