@@ -186,8 +186,8 @@ function setupCityToggle() {
       });
       btn.classList.remove('text-gray-500', 'bg-gray-100');
       btn.classList.add('bg-indigo-100', 'text-indigo-700');
-      document.getElementById('map-city-label').textContent =
-        currentCity === 'atlanta' ? 'Atlanta' : 'Boston';
+      const cityLabels = { atlanta: 'Atlanta', boston: 'Boston', seattle: 'Seattle', los_angeles: 'Los Angeles', dallas: 'Dallas' };
+      document.getElementById('map-city-label').textContent = cityLabels[currentCity] || currentCity;
       renderMap(currentCity);
     });
   });
@@ -244,8 +244,10 @@ async function renderMap(cityKey) {
   // Hotels and restaurants from Supabase
   try {
     const [hotels, restaurants] = await Promise.all([getHotels(), getRestaurants()]);
+    const cityLabel = { atlanta: 'atlanta', boston: 'boston', seattle: 'seattle', los_angeles: 'los angeles', dallas: 'dallas' };
+    const matchCity = cityLabel[cityKey] || cityKey;
 
-    hotels.filter(h => h.city.toLowerCase() === cityKey && h.lat && h.lng).forEach(h => {
+    hotels.filter(h => h.city.toLowerCase() === matchCity && h.lat && h.lng).forEach(h => {
       const votes = (h.hotel_votes || []).length;
       const status = h.status === 'booked' ? '<span style="color:#166534;font-weight:600">BOOKED</span>'
         : h.status === 'rejected' ? '<span style="color:#991b1b;font-weight:600">REJECTED</span>'
@@ -260,7 +262,7 @@ async function renderMap(cityKey) {
       bounds.push([h.lat, h.lng]);
     });
 
-    restaurants.filter(r => r.city.toLowerCase() === cityKey && r.lat && r.lng).forEach(r => {
+    restaurants.filter(r => r.city.toLowerCase() === matchCity && r.lat && r.lng).forEach(r => {
       const votes = (r.restaurant_votes || []).length;
       const marker = L.marker([r.lat, r.lng], {
         icon: createMarkerIcon('#EA580C', '🍽️'),

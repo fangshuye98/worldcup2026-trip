@@ -28,7 +28,7 @@ async function render() {
     if (currentFilter !== 'all') {
       rests = rests.filter(r => r.meal_type === currentFilter || r.meal_type === 'any');
     }
-    const cities = ['Atlanta', 'Boston'];
+    const cities = ['Atlanta', 'Boston', 'Seattle', 'Los Angeles', 'Dallas'];
     if (rests.length === 0) {
       el.innerHTML = '<div class="text-gray-400 text-center py-8">No restaurants yet. Add one!</div>';
       return;
@@ -122,7 +122,7 @@ function openAddRestaurantModal() {
         </div>
       </div>
       <div class="grid grid-cols-2 gap-3">
-        <div><label class="form-label">City</label><select id="r-city" class="form-input"><option value="Atlanta">Atlanta</option><option value="Boston">Boston</option></select></div>
+        <div><label class="form-label">City</label><select id="r-city" class="form-input"><option value="Atlanta">Atlanta</option><option value="Boston">Boston</option><option value="Seattle">Seattle</option><option value="Los Angeles">Los Angeles</option><option value="Dallas">Dallas</option></select></div>
         <div><label class="form-label">Cuisine</label><input id="r-cuisine" class="form-input" placeholder="Southern, BBQ..."></div>
       </div>
       <div class="grid grid-cols-2 gap-3">
@@ -196,6 +196,12 @@ function fillRestaurantPlaceDetails(name, address, lat, lng) {
       document.getElementById('r-city').value = 'Atlanta';
     } else if (lower.includes('boston') || lower.includes('foxborough') || lower.includes(', ma')) {
       document.getElementById('r-city').value = 'Boston';
+    } else if (lower.includes('seattle') || lower.includes(', wa')) {
+      document.getElementById('r-city').value = 'Seattle';
+    } else if (lower.includes('los angeles') || lower.includes('inglewood') || lower.includes(', ca')) {
+      document.getElementById('r-city').value = 'Los Angeles';
+    } else if (lower.includes('dallas') || lower.includes('arlington') || lower.includes(', tx')) {
+      document.getElementById('r-city').value = 'Dallas';
     }
   }
 }

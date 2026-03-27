@@ -15,14 +15,26 @@ export const VENUES = {
     stadium: { name: 'Gillette Stadium', lat: 42.0909, lng: -71.2643 },
     airport: { name: 'BOS Airport', lat: 42.3656, lng: -71.0096 },
   },
+  seattle: {
+    stadium: { name: 'Lumen Field', lat: 47.5952, lng: -122.3316 },
+    airport: { name: 'SEA Airport', lat: 42.4502, lng: -122.3088 },
+  },
+  los_angeles: {
+    stadium: { name: 'SoFi Stadium', lat: 33.9535, lng: -118.3392 },
+    airport: { name: 'LAX Airport', lat: 33.9425, lng: -118.4081 },
+  },
+  dallas: {
+    stadium: { name: 'AT&T Stadium', lat: 32.7473, lng: -97.0945 },
+    airport: { name: 'DFW Airport', lat: 32.8998, lng: -97.0403 },
+  },
 };
 
 // Traveler definitions
 export const TRAVELERS = [
-  { id: 'traveler-1', name: 'Fangshu', origin: 'Seattle, WA', airport: 'SEA', color: '#2563EB', matches: ['atlanta', 'boston'] },
+  { id: 'traveler-1', name: 'Fangshu', origin: 'Seattle, WA', airport: 'SEA', color: '#2563EB', matches: ['atlanta', 'boston', 'seattle', 'los_angeles', 'dallas'] },
   { id: 'traveler-2', name: 'Jikai', origin: 'Seattle, WA', airport: 'SEA', color: '#16A34A', matches: ['atlanta'] },
   { id: 'traveler-3', name: 'Zhijiong', origin: 'Los Angeles, CA', airport: 'LAX', color: '#EA580C', matches: ['atlanta', 'boston'] },
-  { id: 'traveler-4', name: 'Chengpeng', origin: 'Bay Area, CA', airport: 'SJC', color: '#9333EA', matches: ['atlanta'] },
+  { id: 'traveler-4', name: 'Chengpeng', origin: 'Bay Area, CA', airport: 'SJC', color: '#9333EA', matches: ['atlanta', 'seattle', 'los_angeles', 'dallas'] },
 ];
 
 // Match definitions
@@ -48,6 +60,39 @@ export const MATCHES = [
     time: '6:00 PM ET / 3:00 PM PT',
     teams: 'TBD (Playoff) vs Norway',
     attendeeIds: ['traveler-1', 'traveler-3'],
+  },
+  {
+    id: 'match-52',
+    number: 52,
+    city: 'Seattle',
+    cityKey: 'seattle',
+    venue: 'Lumen Field',
+    date: '2026-06-24',
+    time: 'TBD',
+    teams: 'TBD vs TBD',
+    attendeeIds: ['traveler-1', 'traveler-4'],
+  },
+  {
+    id: 'match-73',
+    number: 73,
+    city: 'Los Angeles',
+    cityKey: 'los_angeles',
+    venue: 'SoFi Stadium, Inglewood',
+    date: '2026-06-28',
+    time: 'TBD',
+    teams: 'TBD vs TBD',
+    attendeeIds: ['traveler-1', 'traveler-4'],
+  },
+  {
+    id: 'match-78',
+    number: 78,
+    city: 'Dallas',
+    cityKey: 'dallas',
+    venue: 'AT&T Stadium, Arlington',
+    date: '2026-06-30',
+    time: 'TBD',
+    teams: 'TBD vs TBD',
+    attendeeIds: ['traveler-1', 'traveler-4'],
   },
 ];
 
