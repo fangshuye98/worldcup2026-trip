@@ -68,8 +68,8 @@ export const MATCHES = [
     cityKey: 'seattle',
     venue: 'Lumen Field',
     date: '2026-06-24',
-    time: 'TBD',
-    teams: 'TBD vs TBD',
+    time: '3:00 PM ET / 12:00 PM PT',
+    teams: 'TBD (Playoff Path A Winner) vs Qatar',
     attendeeIds: ['traveler-1', 'traveler-4'],
   },
   {
@@ -79,8 +79,8 @@ export const MATCHES = [
     cityKey: 'los_angeles',
     venue: 'SoFi Stadium, Inglewood',
     date: '2026-06-28',
-    time: 'TBD',
-    teams: 'TBD vs TBD',
+    time: '3:00 PM ET / 12:00 PM PT',
+    teams: 'Group A 2nd vs Group B 2nd',
     attendeeIds: ['traveler-1', 'traveler-4'],
   },
   {
@@ -90,8 +90,8 @@ export const MATCHES = [
     cityKey: 'dallas',
     venue: 'AT&T Stadium, Arlington',
     date: '2026-06-30',
-    time: 'TBD',
-    teams: 'TBD vs TBD',
+    time: '1:00 PM ET / 10:00 AM PT',
+    teams: 'Group E 2nd vs Group I 2nd',
     attendeeIds: ['traveler-1', 'traveler-4'],
   },
 ];
