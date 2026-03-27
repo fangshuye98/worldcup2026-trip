@@ -1,6 +1,7 @@
 import { getRestaurants, addRestaurant, deleteRestaurant, toggleRestaurantVote, subscribeToTable } from './api.js';
 import { TRAVELERS } from './config.js';
 import { openModal, closeModal, showToast, getCurrentTravelerId } from './app.js';
+import { loadGoogleMaps, isMapsLoaded } from './maps.js';
 
 let currentFilter = 'all';
 
@@ -16,6 +17,7 @@ export async function init() {
   });
   subscribeToTable('restaurants', () => render());
   subscribeToTable('restaurant_votes', () => render());
+  loadGoogleMaps();
   await render();
 }
 
@@ -107,7 +109,16 @@ function openAddRestaurantModal() {
   if (!tid) { showToast('Please select who you are first', 'error'); return; }
   const html = `
     <div class="grid gap-3">
-      <div><label class="form-label">Restaurant Name</label><input id="r-name" class="form-input" placeholder="The Varsity"></div>
+      <div>
+        <label class="form-label">Search Restaurant</label>
+        <input id="r-search" class="form-input" placeholder="Type restaurant name to search..." autocomplete="off">
+        <input id="r-name" type="hidden">
+        <input id="r-address" type="hidden">
+        <div id="r-preview" class="hidden mt-2 p-3 bg-orange-50 rounded-lg text-sm">
+          <div id="r-preview-name" class="font-bold"></div>
+          <div id="r-preview-address" class="text-xs text-gray-500 mt-0.5"></div>
+        </div>
+      </div>
       <div class="grid grid-cols-2 gap-3">
         <div><label class="form-label">City</label><select id="r-city" class="form-input"><option value="Atlanta">Atlanta</option><option value="Boston">Boston</option></select></div>
         <div><label class="form-label">Cuisine</label><input id="r-cuisine" class="form-input" placeholder="Southern, BBQ..."></div>
@@ -116,14 +127,15 @@ function openAddRestaurantModal() {
         <div><label class="form-label">Meal</label><select id="r-meal" class="form-input"><option value="any">Any</option><option value="breakfast">Breakfast</option><option value="lunch">Lunch</option><option value="dinner">Dinner</option></select></div>
         <div><label class="form-label">Price Range</label><select id="r-price" class="form-input"><option value="$">$ (Budget)</option><option value="$$" selected>$$ (Moderate)</option><option value="$$$">$$$ (Upscale)</option></select></div>
       </div>
-      <div><label class="form-label">Address</label><input id="r-address" class="form-input" placeholder="Optional"></div>
       <div><label class="form-label">Link</label><input id="r-url" class="form-input" placeholder="https://..."></div>
       <div><label class="form-label">Notes</label><input id="r-notes" class="form-input" placeholder="Optional"></div>
     </div>`;
   openModal('Add Restaurant', html, async () => {
+    const name = document.getElementById('r-name').value || document.getElementById('r-search').value;
+    if (!name.trim()) { showToast('Restaurant name is required', 'error'); return; }
     try {
       await addRestaurant({
-        name: document.getElementById('r-name').value,
+        name: name.trim(),
         city: document.getElementById('r-city').value,
         cuisine: document.getElementById('r-cuisine').value,
         meal_type: document.getElementById('r-meal').value,
@@ -138,4 +150,45 @@ function openAddRestaurantModal() {
       render();
     } catch (e) { showToast('Error: ' + e.message, 'error'); }
   });
+
+  setTimeout(() => setupRestaurantAutocomplete(), 100);
+}
+
+function setupRestaurantAutocomplete() {
+  const input = document.getElementById('r-search');
+  if (!input) return;
+
+  if (isMapsLoaded()) {
+    const autocomplete = new google.maps.places.Autocomplete(input, {
+      types: ['establishment'],
+      fields: ['name', 'formatted_address'],
+    });
+    autocomplete.addListener('place_changed', () => {
+      const place = autocomplete.getPlace();
+      if (!place.name) return;
+      fillRestaurantPlaceDetails(place.name, place.formatted_address);
+    });
+  } else {
+    input.addEventListener('input', () => {
+      document.getElementById('r-name').value = input.value;
+    });
+  }
+}
+
+function fillRestaurantPlaceDetails(name, address) {
+  document.getElementById('r-name').value = name;
+  document.getElementById('r-address').value = address || '';
+
+  document.getElementById('r-preview-name').textContent = name;
+  document.getElementById('r-preview-address').textContent = address || '';
+  document.getElementById('r-preview').classList.remove('hidden');
+
+  if (address) {
+    const lower = address.toLowerCase();
+    if (lower.includes('atlanta') || lower.includes(', ga')) {
+      document.getElementById('r-city').value = 'Atlanta';
+    } else if (lower.includes('boston') || lower.includes('foxborough') || lower.includes(', ma')) {
+      document.getElementById('r-city').value = 'Boston';
+    }
+  }
 }

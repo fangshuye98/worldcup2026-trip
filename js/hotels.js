@@ -1,20 +1,7 @@
 import { getHotels, addHotel, deleteHotel, toggleHotelVote, subscribeToTable } from './api.js';
-import { TRAVELERS, VENUES, GOOGLE_MAPS_API_KEY } from './config.js';
+import { TRAVELERS, VENUES } from './config.js';
 import { openModal, closeModal, showToast, getCurrentTravelerId } from './app.js';
-
-let mapsLoaded = false;
-
-// Load Google Maps Places API if key is configured
-function loadGoogleMaps() {
-  if (mapsLoaded || !GOOGLE_MAPS_API_KEY) return Promise.resolve(false);
-  return new Promise((resolve) => {
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places`;
-    script.onload = () => { mapsLoaded = true; resolve(true); };
-    script.onerror = () => resolve(false);
-    document.head.appendChild(script);
-  });
-}
+import { loadGoogleMaps, isMapsLoaded } from './maps.js';
 
 // Haversine distance in miles
 function getDistance(lat1, lng1, lat2, lng2) {
@@ -216,7 +203,7 @@ function setupAutocomplete() {
   const input = document.getElementById('h-search');
   if (!input) return;
 
-  if (mapsLoaded && window.google && window.google.maps) {
+  if (isMapsLoaded()) {
     const autocomplete = new google.maps.places.Autocomplete(input, {
       types: ['lodging'],
       fields: ['name', 'formatted_address', 'geometry'],
