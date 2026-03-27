@@ -26,6 +26,8 @@
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 </head>
 <body class="bg-fifa-light min-h-screen">
 
@@ -84,6 +86,19 @@
       </div>
 
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8" id="stats"></div>
+
+      <!-- City Map -->
+      <div class="mb-8">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-bold text-lg" style="color:var(--fifa-blue)"><span id="map-city-label">Atlanta</span> Map</h3>
+          <div class="flex gap-2" id="city-toggle">
+            <button class="city-toggle-btn px-3 py-1 text-sm rounded-full font-medium bg-indigo-100 text-indigo-700" data-city="atlanta">Atlanta</button>
+            <button class="city-toggle-btn px-3 py-1 text-sm rounded-full font-medium text-gray-500 bg-gray-100" data-city="boston">Boston</button>
+          </div>
+        </div>
+        <div id="overview-map" style="height:400px; z-index:0;" class="rounded-xl border border-gray-200 overflow-hidden bg-gray-100"></div>
+        <div id="map-legend" class="flex gap-4 mt-2 text-xs text-gray-500 flex-wrap"></div>
+      </div>
 
       <div class="grid md:grid-cols-2 gap-6">
         <div>

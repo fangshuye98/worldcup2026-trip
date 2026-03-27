@@ -239,3 +239,38 @@
     font-size: 1.5rem;
   }
 }
+
+/* City map toggle */
+.city-toggle-btn {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.city-toggle-btn:hover {
+  opacity: 0.85;
+}
+
+/* Leaflet map overrides */
+#overview-map .leaflet-popup-content-wrapper {
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+#overview-map .leaflet-popup-content {
+  margin: 10px 14px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Map legend */
+.map-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.map-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  flex-shrink: 0;
+}

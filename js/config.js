@@ -128,6 +128,8 @@ CREATE TABLE restaurants (
   meal_type text DEFAULT 'any',
   price_range text DEFAULT '$$',
   address text DEFAULT '',
+  lat double precision,
+  lng double precision,
   booking_url text DEFAULT '',
   added_by text NOT NULL,
   notes text DEFAULT '',

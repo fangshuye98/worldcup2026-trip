@@ -114,6 +114,8 @@ function openAddRestaurantModal() {
         <input id="r-search" class="form-input" placeholder="Type restaurant name to search..." autocomplete="off">
         <input id="r-name" type="hidden">
         <input id="r-address" type="hidden">
+        <input id="r-lat" type="hidden">
+        <input id="r-lng" type="hidden">
         <div id="r-preview" class="hidden mt-2 p-3 bg-orange-50 rounded-lg text-sm">
           <div id="r-preview-name" class="font-bold"></div>
           <div id="r-preview-address" class="text-xs text-gray-500 mt-0.5"></div>
@@ -141,6 +143,8 @@ function openAddRestaurantModal() {
         meal_type: document.getElementById('r-meal').value,
         price_range: document.getElementById('r-price').value,
         address: document.getElementById('r-address').value,
+        lat: parseFloat(document.getElementById('r-lat').value) || null,
+        lng: parseFloat(document.getElementById('r-lng').value) || null,
         booking_url: document.getElementById('r-url').value,
         notes: document.getElementById('r-notes').value,
         added_by: tid,
@@ -161,12 +165,13 @@ function setupRestaurantAutocomplete() {
   if (isMapsLoaded()) {
     const autocomplete = new google.maps.places.Autocomplete(input, {
       types: ['establishment'],
-      fields: ['name', 'formatted_address'],
+      fields: ['name', 'formatted_address', 'geometry'],
     });
     autocomplete.addListener('place_changed', () => {
       const place = autocomplete.getPlace();
-      if (!place.name) return;
-      fillRestaurantPlaceDetails(place.name, place.formatted_address);
+      if (!place.geometry) return;
+      fillRestaurantPlaceDetails(place.name, place.formatted_address,
+        place.geometry.location.lat(), place.geometry.location.lng());
     });
   } else {
     input.addEventListener('input', () => {
@@ -175,9 +180,11 @@ function setupRestaurantAutocomplete() {
   }
 }
 
-function fillRestaurantPlaceDetails(name, address) {
+function fillRestaurantPlaceDetails(name, address, lat, lng) {
   document.getElementById('r-name').value = name;
   document.getElementById('r-address').value = address || '';
+  document.getElementById('r-lat').value = lat || '';
+  document.getElementById('r-lng').value = lng || '';
 
   document.getElementById('r-preview-name').textContent = name;
   document.getElementById('r-preview-address').textContent = address || '';
