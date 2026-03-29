@@ -3,8 +3,6 @@ import { TRAVELERS } from './config.js';
 import { openModal, closeModal, showToast, getCurrentTravelerId } from './app.js';
 import { loadGoogleMaps, isMapsLoaded } from './maps.js';
 
-let currentFilter = 'all';
-
 function categoryLabel(cat) {
   const labels = { restaurant: 'Restaurant', cafe: 'Cafe', bar: 'Bar', attraction: 'Attraction', shopping: 'Shopping', other: 'Other' };
   return labels[cat] || 'Restaurant';
@@ -24,14 +22,6 @@ function categoryBadgeClass(cat) {
 
 export async function init() {
   document.getElementById('add-restaurant-btn').addEventListener('click', openAddRestaurantModal);
-  document.querySelectorAll('.meal-filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      currentFilter = btn.dataset.meal;
-      document.querySelectorAll('.meal-filter-btn').forEach(b => b.classList.remove('bg-indigo-100', 'text-indigo-700'));
-      btn.classList.add('bg-indigo-100', 'text-indigo-700');
-      render();
-    });
-  });
   subscribeToTable('restaurants', () => render());
   subscribeToTable('restaurant_votes', () => render());
   loadGoogleMaps();
@@ -41,10 +31,7 @@ export async function init() {
 async function render() {
   const el = document.getElementById('restaurants-list');
   try {
-    let rests = await getRestaurants();
-    if (currentFilter !== 'all') {
-      rests = rests.filter(r => r.meal_type === currentFilter || r.meal_type === 'any');
-    }
+    const rests = await getRestaurants();
     const cities = ['Atlanta', 'Boston', 'Seattle', 'Los Angeles', 'Dallas'];
     if (rests.length === 0) {
       el.innerHTML = '<div class="text-gray-400 text-center py-8">No spots yet. Add one!</div>';
@@ -79,7 +66,6 @@ function restaurantCard(r) {
   const hasVoted = votes.some(v => v.traveler_id === tid);
   const addedBy = TRAVELERS.find(t => t.id === r.added_by);
   const cat = r.category || 'restaurant';
-  const isFood = cat === 'restaurant' || cat === 'cafe';
   return `
     <div class="card group p-4">
       <div class="flex justify-between items-start mb-1">
@@ -90,7 +76,6 @@ function restaurantCard(r) {
         </div>
       </div>
       ${r.cuisine ? `<div class="text-xs text-gray-500 mb-1">${r.cuisine}</div>` : ''}
-      ${isFood ? `<div class="flex gap-1 mb-2"><span class="badge badge-suggested text-xs">${r.meal_type}</span></div>` : ''}
       ${r.address ? `<div class="text-xs text-gray-500 mb-1"><i data-lucide="map-pin" class="w-3 h-3 inline"></i> ${r.address}</div>` : ''}
       ${r.booking_url ? `<a href="${r.booking_url}" target="_blank" class="text-xs text-blue-500 hover:underline">Link</a>` : ''}
       ${r.notes ? `<div class="text-xs text-gray-400 mt-1">${r.notes}</div>` : ''}
@@ -157,12 +142,7 @@ function openAddRestaurantModal() {
         <div><label class="form-label">Cuisine</label><input id="r-cuisine" class="form-input" placeholder="Southern, BBQ..."></div>
       </div>
       <div id="r-meal-wrapper" class="grid grid-cols-2 gap-3">
-        <div><label class="form-label">Meal</label><select id="r-meal" class="form-input"><option value="any">Any</option><option value="breakfast">Breakfast</option><option value="lunch">Lunch</option><option value="dinner">Dinner</option></select></div>
         <div><label class="form-label">Price Range</label><select id="r-price" class="form-input"><option value="$">$ (Budget)</option><option value="$$" selected>$$ (Moderate)</option><option value="$$$">$$$ (Upscale)</option></select></div>
-      </div>
-      <div id="r-price-only-wrapper" class="hidden">
-        <label class="form-label">Price Range</label>
-        <select id="r-price-alt" class="form-input"><option value="$">$ (Budget)</option><option value="$$" selected>$$ (Moderate)</option><option value="$$$">$$$ (Upscale)</option></select>
       </div>
       <div><label class="form-label">Link</label><input id="r-url" class="form-input" placeholder="https://..."></div>
       <div><label class="form-label">Notes</label><input id="r-notes" class="form-input" placeholder="Optional"></div>
@@ -171,15 +151,14 @@ function openAddRestaurantModal() {
     const name = document.getElementById('r-name').value || document.getElementById('r-search').value;
     if (!name.trim()) { showToast('Name is required', 'error'); return; }
     const cat = document.getElementById('r-category').value;
-    const isFood = cat === 'restaurant' || cat === 'cafe';
     try {
       await addRestaurant({
         name: name.trim(),
         category: cat,
         city: document.getElementById('r-city').value,
         cuisine: document.getElementById('r-cuisine').value,
-        meal_type: isFood ? document.getElementById('r-meal').value : 'any',
-        price_range: isFood ? document.getElementById('r-price').value : document.getElementById('r-price-alt').value,
+        meal_type: 'any',
+        price_range: document.getElementById('r-price').value,
         address: document.getElementById('r-address').value,
         lat: parseFloat(document.getElementById('r-lat').value) || null,
         lng: parseFloat(document.getElementById('r-lng').value) || null,
@@ -194,19 +173,8 @@ function openAddRestaurantModal() {
   });
 
   setTimeout(() => {
-    setupCategoryToggle();
     setupRestaurantAutocomplete();
   }, 100);
-}
-
-function setupCategoryToggle() {
-  const catSelect = document.getElementById('r-category');
-  if (!catSelect) return;
-  catSelect.addEventListener('change', () => {
-    const isFood = catSelect.value === 'restaurant' || catSelect.value === 'cafe';
-    document.getElementById('r-meal-wrapper').classList.toggle('hidden', !isFood);
-    document.getElementById('r-price-only-wrapper').classList.toggle('hidden', isFood);
-  });
 }
 
 function setupRestaurantAutocomplete() {

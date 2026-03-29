@@ -175,7 +175,16 @@ function openAddHotelModal() {
       </div>
       <div id="h-manual-mode" class="hidden grid gap-3">
         <div><label class="form-label">Name / Label</label><input id="h-manual-name" class="form-input" placeholder="e.g. John's Place" autocomplete="off"></div>
-        <div><label class="form-label">Address</label><input id="h-manual-address" class="form-input" placeholder="123 Main St, Atlanta, GA 30301"></div>
+        <div>
+          <label class="form-label">Address</label>
+          <input id="h-manual-address" class="form-input" placeholder="Start typing address..." autocomplete="off">
+          <input id="h-manual-lat" type="hidden">
+          <input id="h-manual-lng" type="hidden">
+          <div id="h-manual-preview" class="hidden mt-2 p-3 bg-teal-50 rounded-lg text-sm">
+            <div id="h-manual-preview-address" class="text-xs text-gray-500"></div>
+            <div id="h-manual-preview-dist" class="text-xs text-gray-500 mt-1"></div>
+          </div>
+        </div>
       </div>
       <div><label class="form-label">City</label><select id="h-city" class="form-input"><option value="Atlanta">Atlanta</option><option value="Boston">Boston</option><option value="Seattle">Seattle</option><option value="Los Angeles">Los Angeles</option><option value="Dallas">Dallas</option></select></div>
       <div class="grid grid-cols-2 gap-3">
@@ -200,8 +209,8 @@ function openAddHotelModal() {
     } else {
       name = document.getElementById('h-manual-name').value;
       address = document.getElementById('h-manual-address').value;
-      lat = null;
-      lng = null;
+      lat = parseFloat(document.getElementById('h-manual-lat').value) || null;
+      lng = parseFloat(document.getElementById('h-manual-lng').value) || null;
     }
     if (!name || !name.trim()) { showToast('Stay name is required', 'error'); return; }
     try {
@@ -229,6 +238,7 @@ function openAddHotelModal() {
   setTimeout(() => {
     setupTypeToggle();
     setupAutocomplete();
+    setupManualAddressAutocomplete();
   }, 100);
 }
 
@@ -242,6 +252,9 @@ function setupTypeToggle() {
     if (isHotel) {
       document.getElementById('h-manual-name').value = '';
       document.getElementById('h-manual-address').value = '';
+      document.getElementById('h-manual-lat').value = '';
+      document.getElementById('h-manual-lng').value = '';
+      document.getElementById('h-manual-preview').classList.add('hidden');
     } else {
       document.getElementById('h-search').value = '';
       document.getElementById('h-name').value = '';
@@ -274,6 +287,56 @@ function setupAutocomplete() {
       document.getElementById('h-name').value = input.value;
     });
   }
+}
+
+function setupManualAddressAutocomplete() {
+  const input = document.getElementById('h-manual-address');
+  if (!input || !isMapsLoaded()) return;
+
+  const autocomplete = new google.maps.places.Autocomplete(input, {
+    types: ['address'],
+    fields: ['formatted_address', 'geometry'],
+  });
+  autocomplete.addListener('place_changed', () => {
+    const place = autocomplete.getPlace();
+    if (!place.geometry) return;
+    const lat = place.geometry.location.lat();
+    const lng = place.geometry.location.lng();
+    const address = place.formatted_address || '';
+
+    document.getElementById('h-manual-address').value = address;
+    document.getElementById('h-manual-lat').value = lat;
+    document.getElementById('h-manual-lng').value = lng;
+
+    // Show preview with distance
+    const preview = document.getElementById('h-manual-preview');
+    document.getElementById('h-manual-preview-address').textContent = address;
+    const cityKey = document.getElementById('h-city').value.toLowerCase();
+    const venue = VENUES[cityKey];
+    if (venue) {
+      const stadiumDist = getDistance(lat, lng, venue.stadium.lat, venue.stadium.lng);
+      const airportDist = getDistance(lat, lng, venue.airport.lat, venue.airport.lng);
+      document.getElementById('h-manual-preview-dist').innerHTML =
+        `📍 ${distanceLabel(stadiumDist)} to ${venue.stadium.name} · ${distanceLabel(airportDist)} to ${venue.airport.name}`;
+    }
+    preview.classList.remove('hidden');
+
+    // Auto-detect city
+    if (address) {
+      const lower = address.toLowerCase();
+      if (lower.includes('atlanta') || lower.includes(', ga')) {
+        document.getElementById('h-city').value = 'Atlanta';
+      } else if (lower.includes('boston') || lower.includes('foxborough') || lower.includes(', ma')) {
+        document.getElementById('h-city').value = 'Boston';
+      } else if (lower.includes('seattle') || lower.includes(', wa')) {
+        document.getElementById('h-city').value = 'Seattle';
+      } else if (lower.includes('los angeles') || lower.includes('inglewood') || lower.includes(', ca')) {
+        document.getElementById('h-city').value = 'Los Angeles';
+      } else if (lower.includes('dallas') || lower.includes('arlington') || lower.includes(', tx')) {
+        document.getElementById('h-city').value = 'Dallas';
+      }
+    }
+  });
 }
 
 function fillPlaceDetails(name, address, lat, lng) {
