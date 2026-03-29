@@ -32,7 +32,7 @@ async function render() {
     const hotels = await getHotels();
     const cities = ['Atlanta', 'Boston', 'Seattle', 'Los Angeles', 'Dallas'];
     if (hotels.length === 0) {
-      el.innerHTML = '<div class="text-gray-400 text-center py-8">No hotels yet. Add one!</div>';
+      el.innerHTML = '<div class="text-gray-400 text-center py-8">No stays yet. Add one!</div>';
       return;
     }
     el.innerHTML = cities.map(city => {
@@ -43,9 +43,9 @@ async function render() {
           <h3 class="font-bold text-lg mb-3" style="color:var(--fifa-blue)">${city}</h3>
           <div class="grid gap-3 sm:grid-cols-2">${cityHotels.map(hotelCard).join('')}</div>
         </div>`;
-    }).join('') || '<div class="text-gray-400 text-center py-8">No hotels yet. Add one!</div>';
+    }).join('') || '<div class="text-gray-400 text-center py-8">No stays yet. Add one!</div>';
   } catch (e) {
-    el.innerHTML = '<div class="text-gray-400 text-center py-8">Connect Supabase to see hotels</div>';
+    el.innerHTML = '<div class="text-gray-400 text-center py-8">Connect Supabase to see stays</div>';
   }
   if (window.lucide) window.lucide.createIcons();
 }
@@ -56,6 +56,9 @@ function hotelCard(h) {
   const hasVoted = votes.some(v => v.traveler_id === tid);
   const addedBy = TRAVELERS.find(t => t.id === h.added_by);
   const badgeClass = h.status === 'booked' ? 'badge-booked' : h.status === 'rejected' ? 'badge-rejected' : 'badge-suggested';
+  const typeLabel = h.type === 'airbnb' ? 'Airbnb' : h.type === 'house' ? 'House' : 'Hotel';
+  const typeBadge = h.type === 'airbnb' ? 'bg-pink-100 text-pink-700'
+    : h.type === 'house' ? 'bg-teal-100 text-teal-700' : 'bg-blue-100 text-blue-700';
   const cityKey = h.city.toLowerCase();
   const venue = VENUES[cityKey];
 
@@ -94,7 +97,10 @@ function hotelCard(h) {
       <div class="flex justify-between items-start mb-1">
         <a href="https://www.google.com/maps/search/?api=1&query=${mapsQuery}" target="_blank"
            class="font-bold hover:text-blue-600 transition-colors">${h.name}</a>
-        <span class="badge ${badgeClass}">${h.status}</span>
+        <div class="flex gap-1 items-center">
+          <span class="text-xs px-2 py-0.5 rounded-full font-medium ${typeBadge}">${typeLabel}</span>
+          <span class="badge ${badgeClass}">${h.status}</span>
+        </div>
       </div>
       ${h.address ? `<div class="text-xs text-gray-500 mb-1"><i data-lucide="map-pin" class="w-3 h-3 inline"></i> ${h.address}</div>` : ''}
       ${mapHTML}
@@ -104,7 +110,7 @@ function hotelCard(h) {
       <div class="flex gap-2 mt-2 text-xs">
         ${h.booking_url ? `<a href="${h.booking_url}" target="_blank" class="text-blue-500 hover:underline">Booking</a><span class="text-gray-300">·</span>` : ''}
         <a href="${restaurantsQuery}" target="_blank" class="text-orange-500 hover:underline flex items-center gap-0.5">
-          <i data-lucide="utensils" class="w-3 h-3"></i> Nearby restaurants
+          <i data-lucide="utensils" class="w-3 h-3"></i> Nearby eats
         </a>
       </div>
       ${h.notes ? `<div class="text-xs text-gray-400 mt-1">${h.notes}</div>` : ''}
@@ -136,8 +142,8 @@ window._voteHotel = async (id) => {
 };
 
 window._deleteHotel = async (id) => {
-  if (!confirm('Delete this hotel?')) return;
-  try { await deleteHotel(id); showToast('Hotel deleted'); render(); }
+  if (!confirm('Delete this stay?')) return;
+  try { await deleteHotel(id); showToast('Stay deleted'); render(); }
   catch (e) { showToast('Error: ' + e.message, 'error'); }
 };
 
@@ -147,6 +153,14 @@ function openAddHotelModal() {
   const html = `
     <div class="grid gap-3">
       <div>
+        <label class="form-label">Type</label>
+        <select id="h-type" class="form-input">
+          <option value="hotel">Hotel</option>
+          <option value="airbnb">Airbnb</option>
+          <option value="house">House</option>
+        </select>
+      </div>
+      <div id="h-search-mode">
         <label class="form-label">Search Hotel</label>
         <input id="h-search" class="form-input" placeholder="Type hotel name to search..." autocomplete="off">
         <input id="h-name" type="hidden">
@@ -158,6 +172,10 @@ function openAddHotelModal() {
           <div id="h-preview-address" class="text-xs text-gray-500 mt-0.5"></div>
           <div id="h-preview-dist" class="text-xs text-gray-500 mt-1"></div>
         </div>
+      </div>
+      <div id="h-manual-mode" class="hidden grid gap-3">
+        <div><label class="form-label">Name / Label</label><input id="h-manual-name" class="form-input" placeholder="e.g. John's Place" autocomplete="off"></div>
+        <div><label class="form-label">Address</label><input id="h-manual-address" class="form-input" placeholder="123 Main St, Atlanta, GA 30301"></div>
       </div>
       <div><label class="form-label">City</label><select id="h-city" class="form-input"><option value="Atlanta">Atlanta</option><option value="Boston">Boston</option><option value="Seattle">Seattle</option><option value="Los Angeles">Los Angeles</option><option value="Dallas">Dallas</option></select></div>
       <div class="grid grid-cols-2 gap-3">
@@ -171,16 +189,29 @@ function openAddHotelModal() {
       <div><label class="form-label">Booking URL</label><input id="h-url" class="form-input" placeholder="https://..."></div>
       <div><label class="form-label">Notes</label><input id="h-notes" class="form-input" placeholder="Optional"></div>
     </div>`;
-  openModal('Add Hotel', html, async () => {
-    const name = document.getElementById('h-name').value || document.getElementById('h-search').value;
-    if (!name.trim()) { showToast('Hotel name is required', 'error'); return; }
+  openModal('Add Stay', html, async () => {
+    const type = document.getElementById('h-type').value;
+    let name, address, lat, lng;
+    if (type === 'hotel') {
+      name = document.getElementById('h-name').value || document.getElementById('h-search').value;
+      address = document.getElementById('h-address').value;
+      lat = parseFloat(document.getElementById('h-lat').value) || null;
+      lng = parseFloat(document.getElementById('h-lng').value) || null;
+    } else {
+      name = document.getElementById('h-manual-name').value;
+      address = document.getElementById('h-manual-address').value;
+      lat = null;
+      lng = null;
+    }
+    if (!name || !name.trim()) { showToast('Stay name is required', 'error'); return; }
     try {
       await addHotel({
         name: name.trim(),
+        type: type,
         city: document.getElementById('h-city').value,
-        address: document.getElementById('h-address').value,
-        lat: parseFloat(document.getElementById('h-lat').value) || null,
-        lng: parseFloat(document.getElementById('h-lng').value) || null,
+        address: address,
+        lat: lat,
+        lng: lng,
         price_per_night: document.getElementById('h-price').value || null,
         status: document.getElementById('h-status').value,
         check_in: document.getElementById('h-checkin').value || null,
@@ -190,13 +221,36 @@ function openAddHotelModal() {
         added_by: tid,
       });
       closeModal();
-      showToast('Hotel added!');
+      showToast('Stay added!');
       render();
     } catch (e) { showToast('Error: ' + e.message, 'error'); }
   });
 
-  // Setup Places Autocomplete if available
-  setTimeout(() => setupAutocomplete(), 100);
+  setTimeout(() => {
+    setupTypeToggle();
+    setupAutocomplete();
+  }, 100);
+}
+
+function setupTypeToggle() {
+  const typeSelect = document.getElementById('h-type');
+  if (!typeSelect) return;
+  typeSelect.addEventListener('change', () => {
+    const isHotel = typeSelect.value === 'hotel';
+    document.getElementById('h-search-mode').classList.toggle('hidden', !isHotel);
+    document.getElementById('h-manual-mode').classList.toggle('hidden', isHotel);
+    if (isHotel) {
+      document.getElementById('h-manual-name').value = '';
+      document.getElementById('h-manual-address').value = '';
+    } else {
+      document.getElementById('h-search').value = '';
+      document.getElementById('h-name').value = '';
+      document.getElementById('h-address').value = '';
+      document.getElementById('h-lat').value = '';
+      document.getElementById('h-lng').value = '';
+      document.getElementById('h-preview').classList.add('hidden');
+    }
+  });
 }
 
 function setupAutocomplete() {

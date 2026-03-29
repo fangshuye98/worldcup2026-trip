@@ -7,7 +7,7 @@ import * as restaurants from './restaurants.js';
 import * as matches from './matches.js';
 import * as notes from './notes.js';
 
-const TABS = ['overview', 'flights', 'hotels', 'restaurants', 'matches', 'notes'];
+const TABS = ['overview', 'flights', 'stays', 'eats', 'matches', 'notes'];
 let currentTravelerId = localStorage.getItem('travelerId') || null;
 
 // ---- Public API ----
@@ -103,8 +103,10 @@ async function init() {
     document.getElementById(`tab-btn-${t}`).addEventListener('click', () => switchTab(t));
   });
 
-  // Read URL hash
-  const hash = window.location.hash.slice(1);
+  // Read URL hash (with backward compat for old names)
+  let hash = window.location.hash.slice(1);
+  if (hash === 'hotels') hash = 'stays';
+  if (hash === 'restaurants') hash = 'eats';
   switchTab(TABS.includes(hash) ? hash : 'overview');
 
   // Seed data

@@ -5,6 +5,23 @@ import { loadGoogleMaps, isMapsLoaded } from './maps.js';
 
 let currentFilter = 'all';
 
+function categoryLabel(cat) {
+  const labels = { restaurant: 'Restaurant', cafe: 'Cafe', bar: 'Bar', attraction: 'Attraction', shopping: 'Shopping', other: 'Other' };
+  return labels[cat] || 'Restaurant';
+}
+
+function categoryBadgeClass(cat) {
+  const classes = {
+    restaurant: 'bg-orange-100 text-orange-700',
+    cafe: 'bg-amber-100 text-amber-700',
+    bar: 'bg-purple-100 text-purple-700',
+    attraction: 'bg-emerald-100 text-emerald-700',
+    shopping: 'bg-pink-100 text-pink-700',
+    other: 'bg-gray-100 text-gray-700',
+  };
+  return classes[cat] || classes.restaurant;
+}
+
 export async function init() {
   document.getElementById('add-restaurant-btn').addEventListener('click', openAddRestaurantModal);
   document.querySelectorAll('.meal-filter-btn').forEach(btn => {
@@ -30,7 +47,7 @@ async function render() {
     }
     const cities = ['Atlanta', 'Boston', 'Seattle', 'Los Angeles', 'Dallas'];
     if (rests.length === 0) {
-      el.innerHTML = '<div class="text-gray-400 text-center py-8">No restaurants yet. Add one!</div>';
+      el.innerHTML = '<div class="text-gray-400 text-center py-8">No spots yet. Add one!</div>';
       return;
     }
     el.innerHTML = cities.map(city => {
@@ -41,10 +58,10 @@ async function render() {
           <h3 class="font-bold text-lg mb-3" style="color:var(--fifa-blue)">${city}</h3>
           <div class="grid gap-3 sm:grid-cols-2">${cityRests.map(restaurantCard).join('')}</div>
         </div>`;
-    }).join('') || '<div class="text-gray-400 text-center py-8">No restaurants match the filter</div>';
+    }).join('') || '<div class="text-gray-400 text-center py-8">No spots match the filter</div>';
     if (window.lucide) window.lucide.createIcons();
   } catch (e) {
-    el.innerHTML = '<div class="text-gray-400 text-center py-8">Connect Supabase to see restaurants</div>';
+    el.innerHTML = '<div class="text-gray-400 text-center py-8">Connect Supabase to see spots</div>';
   }
 }
 
@@ -61,16 +78,19 @@ function restaurantCard(r) {
   const tid = getCurrentTravelerId();
   const hasVoted = votes.some(v => v.traveler_id === tid);
   const addedBy = TRAVELERS.find(t => t.id === r.added_by);
+  const cat = r.category || 'restaurant';
+  const isFood = cat === 'restaurant' || cat === 'cafe';
   return `
     <div class="card group p-4">
       <div class="flex justify-between items-start mb-1">
         <span class="font-bold">${r.name}</span>
-        <span class="text-sm">${priceDisplay(r.price_range)}</span>
+        <div class="flex gap-1 items-center">
+          <span class="text-xs px-2 py-0.5 rounded-full font-medium ${categoryBadgeClass(cat)}">${categoryLabel(cat)}</span>
+          <span class="text-sm">${priceDisplay(r.price_range)}</span>
+        </div>
       </div>
       ${r.cuisine ? `<div class="text-xs text-gray-500 mb-1">${r.cuisine}</div>` : ''}
-      <div class="flex gap-1 mb-2">
-        <span class="badge badge-suggested text-xs">${r.meal_type}</span>
-      </div>
+      ${isFood ? `<div class="flex gap-1 mb-2"><span class="badge badge-suggested text-xs">${r.meal_type}</span></div>` : ''}
       ${r.address ? `<div class="text-xs text-gray-500 mb-1"><i data-lucide="map-pin" class="w-3 h-3 inline"></i> ${r.address}</div>` : ''}
       ${r.booking_url ? `<a href="${r.booking_url}" target="_blank" class="text-xs text-blue-500 hover:underline">Link</a>` : ''}
       ${r.notes ? `<div class="text-xs text-gray-400 mt-1">${r.notes}</div>` : ''}
@@ -99,8 +119,8 @@ window._voteRestaurant = async (id) => {
 };
 
 window._deleteRestaurant = async (id) => {
-  if (!confirm('Delete this restaurant?')) return;
-  try { await deleteRestaurant(id); showToast('Restaurant deleted'); render(); }
+  if (!confirm('Delete this spot?')) return;
+  try { await deleteRestaurant(id); showToast('Spot deleted'); render(); }
   catch (e) { showToast('Error: ' + e.message, 'error'); }
 };
 
@@ -110,8 +130,19 @@ function openAddRestaurantModal() {
   const html = `
     <div class="grid gap-3">
       <div>
-        <label class="form-label">Search Restaurant</label>
-        <input id="r-search" class="form-input" placeholder="Type restaurant name to search..." autocomplete="off">
+        <label class="form-label">Category</label>
+        <select id="r-category" class="form-input">
+          <option value="restaurant">Restaurant</option>
+          <option value="cafe">Cafe</option>
+          <option value="bar">Bar</option>
+          <option value="attraction">Attraction</option>
+          <option value="shopping">Shopping</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Search Place</label>
+        <input id="r-search" class="form-input" placeholder="Type name to search..." autocomplete="off">
         <input id="r-name" type="hidden">
         <input id="r-address" type="hidden">
         <input id="r-lat" type="hidden">
@@ -125,23 +156,30 @@ function openAddRestaurantModal() {
         <div><label class="form-label">City</label><select id="r-city" class="form-input"><option value="Atlanta">Atlanta</option><option value="Boston">Boston</option><option value="Seattle">Seattle</option><option value="Los Angeles">Los Angeles</option><option value="Dallas">Dallas</option></select></div>
         <div><label class="form-label">Cuisine</label><input id="r-cuisine" class="form-input" placeholder="Southern, BBQ..."></div>
       </div>
-      <div class="grid grid-cols-2 gap-3">
+      <div id="r-meal-wrapper" class="grid grid-cols-2 gap-3">
         <div><label class="form-label">Meal</label><select id="r-meal" class="form-input"><option value="any">Any</option><option value="breakfast">Breakfast</option><option value="lunch">Lunch</option><option value="dinner">Dinner</option></select></div>
         <div><label class="form-label">Price Range</label><select id="r-price" class="form-input"><option value="$">$ (Budget)</option><option value="$$" selected>$$ (Moderate)</option><option value="$$$">$$$ (Upscale)</option></select></div>
+      </div>
+      <div id="r-price-only-wrapper" class="hidden">
+        <label class="form-label">Price Range</label>
+        <select id="r-price-alt" class="form-input"><option value="$">$ (Budget)</option><option value="$$" selected>$$ (Moderate)</option><option value="$$$">$$$ (Upscale)</option></select>
       </div>
       <div><label class="form-label">Link</label><input id="r-url" class="form-input" placeholder="https://..."></div>
       <div><label class="form-label">Notes</label><input id="r-notes" class="form-input" placeholder="Optional"></div>
     </div>`;
-  openModal('Add Restaurant', html, async () => {
+  openModal('Add Spot', html, async () => {
     const name = document.getElementById('r-name').value || document.getElementById('r-search').value;
-    if (!name.trim()) { showToast('Restaurant name is required', 'error'); return; }
+    if (!name.trim()) { showToast('Name is required', 'error'); return; }
+    const cat = document.getElementById('r-category').value;
+    const isFood = cat === 'restaurant' || cat === 'cafe';
     try {
       await addRestaurant({
         name: name.trim(),
+        category: cat,
         city: document.getElementById('r-city').value,
         cuisine: document.getElementById('r-cuisine').value,
-        meal_type: document.getElementById('r-meal').value,
-        price_range: document.getElementById('r-price').value,
+        meal_type: isFood ? document.getElementById('r-meal').value : 'any',
+        price_range: isFood ? document.getElementById('r-price').value : document.getElementById('r-price-alt').value,
         address: document.getElementById('r-address').value,
         lat: parseFloat(document.getElementById('r-lat').value) || null,
         lng: parseFloat(document.getElementById('r-lng').value) || null,
@@ -150,12 +188,25 @@ function openAddRestaurantModal() {
         added_by: tid,
       });
       closeModal();
-      showToast('Restaurant added!');
+      showToast('Spot added!');
       render();
     } catch (e) { showToast('Error: ' + e.message, 'error'); }
   });
 
-  setTimeout(() => setupRestaurantAutocomplete(), 100);
+  setTimeout(() => {
+    setupCategoryToggle();
+    setupRestaurantAutocomplete();
+  }, 100);
+}
+
+function setupCategoryToggle() {
+  const catSelect = document.getElementById('r-category');
+  if (!catSelect) return;
+  catSelect.addEventListener('change', () => {
+    const isFood = catSelect.value === 'restaurant' || catSelect.value === 'cafe';
+    document.getElementById('r-meal-wrapper').classList.toggle('hidden', !isFood);
+    document.getElementById('r-price-only-wrapper').classList.toggle('hidden', isFood);
+  });
 }
 
 function setupRestaurantAutocomplete() {

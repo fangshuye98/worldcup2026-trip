@@ -155,6 +155,7 @@ CREATE TABLE hotels (
   added_by text NOT NULL,
   notes text DEFAULT '',
   status text DEFAULT 'suggested',
+  type text DEFAULT 'hotel',
   created_at timestamptz DEFAULT now()
 );
 
@@ -178,6 +179,7 @@ CREATE TABLE restaurants (
   booking_url text DEFAULT '',
   added_by text NOT NULL,
   notes text DEFAULT '',
+  category text DEFAULT 'restaurant',
   created_at timestamptz DEFAULT now()
 );
 

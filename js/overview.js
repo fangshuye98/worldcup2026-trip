@@ -168,8 +168,8 @@ async function renderStats() {
     const bookedFlights = flightsData.filter(f => f.status === 'booked').length;
     el.innerHTML = `
       <div class="stat-card"><div class="stat-number">${bookedFlights}</div><div class="stat-label">Flights Booked</div></div>
-      <div class="stat-card"><div class="stat-number">${hotelsData.length}</div><div class="stat-label">Hotels</div></div>
-      <div class="stat-card"><div class="stat-number">${restaurantsData.length}</div><div class="stat-label">Restaurants</div></div>
+      <div class="stat-card"><div class="stat-number">${hotelsData.length}</div><div class="stat-label">Stays</div></div>
+      <div class="stat-card"><div class="stat-number">${restaurantsData.length}</div><div class="stat-label">Eats</div></div>
       <div class="stat-card"><div class="stat-number">${notesData.length}</div><div class="stat-label">Notes</div></div>`;
   } catch (e) {
     el.innerHTML = '<div class="text-gray-400 text-sm col-span-4">Connect Supabase to see stats</div>';
@@ -289,8 +289,8 @@ function renderMapLegend() {
   const items = [
     { color: '#D4AF37', label: 'Stadium' },
     { color: '#6B7280', label: 'Airport' },
-    { color: '#2563EB', label: 'Hotels' },
-    { color: '#EA580C', label: 'Restaurants' },
+    { color: '#2563EB', label: 'Stays' },
+    { color: '#EA580C', label: 'Eats & Activities' },
   ];
   el.innerHTML = items.map(item =>
     `<div class="map-legend-item"><div class="map-legend-dot" style="background:${item.color}"></div><span>${item.label}</span></div>`
