@@ -48,6 +48,9 @@ export const MATCHES = [
     date: '2026-06-15',
     time: '12:00 PM ET / 9:00 AM PT',
     teams: 'Spain vs Cape Verde',
+    stage: 'group',
+    group: 'H',
+    groupTeams: ['Spain', 'Cape Verde', 'Saudi Arabia', 'Uruguay'],
     attendeeIds: ['traveler-1', 'traveler-2', 'traveler-3', 'traveler-4'],
   },
   {
@@ -58,7 +61,10 @@ export const MATCHES = [
     venue: 'Gillette Stadium, Foxborough',
     date: '2026-06-16',
     time: '6:00 PM ET / 3:00 PM PT',
-    teams: 'TBD (Playoff) vs Norway',
+    teams: 'Iraq vs Norway',
+    stage: 'group',
+    group: 'I',
+    groupTeams: ['France', 'Senegal', 'Iraq', 'Norway'],
     attendeeIds: ['traveler-1', 'traveler-3'],
   },
   {
@@ -69,7 +75,10 @@ export const MATCHES = [
     venue: 'Lumen Field',
     date: '2026-06-24',
     time: '3:00 PM ET / 12:00 PM PT',
-    teams: 'TBD (Playoff Path A Winner) vs Qatar',
+    teams: 'Bosnia & Herzegovina vs Qatar',
+    stage: 'group',
+    group: 'B',
+    groupTeams: ['Canada', 'Bosnia & Herzegovina', 'Qatar', 'Switzerland'],
     attendeeIds: ['traveler-1', 'traveler-4'],
   },
   {
@@ -81,6 +90,11 @@ export const MATCHES = [
     date: '2026-06-28',
     time: '3:00 PM ET / 12:00 PM PT',
     teams: 'Group A 2nd vs Group B 2nd',
+    stage: 'round-of-32',
+    groups: [
+      { name: 'A', teams: ['Mexico', 'South Africa', 'South Korea', 'Czechia'] },
+      { name: 'B', teams: ['Canada', 'Bosnia & Herzegovina', 'Qatar', 'Switzerland'] },
+    ],
     attendeeIds: ['traveler-1', 'traveler-4'],
   },
   {
@@ -92,6 +106,11 @@ export const MATCHES = [
     date: '2026-06-30',
     time: '1:00 PM ET / 10:00 AM PT',
     teams: 'Group E 2nd vs Group I 2nd',
+    stage: 'round-of-32',
+    groups: [
+      { name: 'E', teams: ['Germany', 'Curaçao', 'Ivory Coast', 'Ecuador'] },
+      { name: 'I', teams: ['France', 'Senegal', 'Iraq', 'Norway'] },
+    ],
     attendeeIds: ['traveler-1', 'traveler-4'],
   },
 ];
