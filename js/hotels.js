@@ -30,7 +30,7 @@ async function render() {
   const el = document.getElementById('hotels-list');
   try {
     const hotels = await getHotels();
-    const cities = ['Atlanta', 'Boston', 'Seattle', 'Los Angeles', 'Dallas'];
+    const cities = ['Atlanta', 'Boston', 'Los Angeles', 'Dallas'];
     if (hotels.length === 0) {
       el.innerHTML = '<div class="text-gray-400 text-center py-8">No stays yet. Add one!</div>';
       return;
@@ -186,7 +186,7 @@ function openAddHotelModal() {
           </div>
         </div>
       </div>
-      <div><label class="form-label">City</label><select id="h-city" class="form-input"><option value="Atlanta">Atlanta</option><option value="Boston">Boston</option><option value="Seattle">Seattle</option><option value="Los Angeles">Los Angeles</option><option value="Dallas">Dallas</option></select></div>
+      <div><label class="form-label">City</label><select id="h-city" class="form-input"><option value="Atlanta">Atlanta</option><option value="Boston">Boston</option><option value="Los Angeles">Los Angeles</option><option value="Dallas">Dallas</option></select></div>
       <div class="grid grid-cols-2 gap-3">
         <div><label class="form-label">Price/Night ($)</label><input id="h-price" type="number" class="form-input" placeholder="150"></div>
         <div><label class="form-label">Status</label><select id="h-status" class="form-input"><option value="suggested">Suggested</option><option value="booked">Booked</option><option value="rejected">Rejected</option></select></div>
@@ -328,8 +328,6 @@ function setupManualAddressAutocomplete() {
         document.getElementById('h-city').value = 'Atlanta';
       } else if (lower.includes('boston') || lower.includes('foxborough') || lower.includes(', ma')) {
         document.getElementById('h-city').value = 'Boston';
-      } else if (lower.includes('seattle') || lower.includes(', wa')) {
-        document.getElementById('h-city').value = 'Seattle';
       } else if (lower.includes('los angeles') || lower.includes('inglewood') || lower.includes(', ca')) {
         document.getElementById('h-city').value = 'Los Angeles';
       } else if (lower.includes('dallas') || lower.includes('arlington') || lower.includes(', tx')) {
@@ -368,8 +366,6 @@ function fillPlaceDetails(name, address, lat, lng) {
       document.getElementById('h-city').value = 'Atlanta';
     } else if (lower.includes('boston') || lower.includes('foxborough') || lower.includes(', ma')) {
       document.getElementById('h-city').value = 'Boston';
-    } else if (lower.includes('seattle') || lower.includes(', wa')) {
-      document.getElementById('h-city').value = 'Seattle';
     } else if (lower.includes('los angeles') || lower.includes('inglewood') || lower.includes(', ca')) {
       document.getElementById('h-city').value = 'Los Angeles';
     } else if (lower.includes('dallas') || lower.includes('arlington') || lower.includes(', tx')) {

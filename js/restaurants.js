@@ -32,7 +32,7 @@ async function render() {
   const el = document.getElementById('restaurants-list');
   try {
     const rests = await getRestaurants();
-    const cities = ['Atlanta', 'Boston', 'Seattle', 'Los Angeles', 'Dallas'];
+    const cities = ['Atlanta', 'Boston', 'Los Angeles', 'Dallas'];
     if (rests.length === 0) {
       el.innerHTML = '<div class="text-gray-400 text-center py-8">No spots yet. Add one!</div>';
       return;
@@ -138,7 +138,7 @@ function openAddRestaurantModal() {
         </div>
       </div>
       <div class="grid grid-cols-2 gap-3">
-        <div><label class="form-label">City</label><select id="r-city" class="form-input"><option value="Atlanta">Atlanta</option><option value="Boston">Boston</option><option value="Seattle">Seattle</option><option value="Los Angeles">Los Angeles</option><option value="Dallas">Dallas</option></select></div>
+        <div><label class="form-label">City</label><select id="r-city" class="form-input"><option value="Atlanta">Atlanta</option><option value="Boston">Boston</option><option value="Los Angeles">Los Angeles</option><option value="Dallas">Dallas</option></select></div>
         <div><label class="form-label">Cuisine</label><input id="r-cuisine" class="form-input" placeholder="Southern, BBQ..."></div>
       </div>
       <div id="r-meal-wrapper" class="grid grid-cols-2 gap-3">
@@ -215,8 +215,6 @@ function fillRestaurantPlaceDetails(name, address, lat, lng) {
       document.getElementById('r-city').value = 'Atlanta';
     } else if (lower.includes('boston') || lower.includes('foxborough') || lower.includes(', ma')) {
       document.getElementById('r-city').value = 'Boston';
-    } else if (lower.includes('seattle') || lower.includes(', wa')) {
-      document.getElementById('r-city').value = 'Seattle';
     } else if (lower.includes('los angeles') || lower.includes('inglewood') || lower.includes(', ca')) {
       document.getElementById('r-city').value = 'Los Angeles';
     } else if (lower.includes('dallas') || lower.includes('arlington') || lower.includes(', tx')) {

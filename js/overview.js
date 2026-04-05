@@ -186,7 +186,7 @@ function setupCityToggle() {
       });
       btn.classList.remove('text-gray-500', 'bg-gray-100');
       btn.classList.add('bg-indigo-100', 'text-indigo-700');
-      const cityLabels = { atlanta: 'Atlanta', boston: 'Boston', seattle: 'Seattle', los_angeles: 'Los Angeles', dallas: 'Dallas' };
+      const cityLabels = { atlanta: 'Atlanta', boston: 'Boston', los_angeles: 'Los Angeles', dallas: 'Dallas' };
       document.getElementById('map-city-label').textContent = cityLabels[currentCity] || currentCity;
       renderMap(currentCity);
     });
@@ -244,7 +244,7 @@ async function renderMap(cityKey) {
   // Hotels and restaurants from Supabase
   try {
     const [hotels, restaurants] = await Promise.all([getHotels(), getRestaurants()]);
-    const cityLabel = { atlanta: 'atlanta', boston: 'boston', seattle: 'seattle', los_angeles: 'los angeles', dallas: 'dallas' };
+    const cityLabel = { atlanta: 'atlanta', boston: 'boston', los_angeles: 'los angeles', dallas: 'dallas' };
     const matchCity = cityLabel[cityKey] || cityKey;
 
     hotels.filter(h => h.city.toLowerCase() === matchCity && h.lat && h.lng).forEach(h => {

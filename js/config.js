@@ -15,10 +15,6 @@ export const VENUES = {
     stadium: { name: 'Gillette Stadium', lat: 42.0909, lng: -71.2643 },
     airport: { name: 'BOS Airport', lat: 42.3656, lng: -71.0096 },
   },
-  seattle: {
-    stadium: { name: 'Lumen Field', lat: 47.5952, lng: -122.3316 },
-    airport: { name: 'SEA Airport', lat: 47.4502, lng: -122.3088 },
-  },
   los_angeles: {
     stadium: { name: 'SoFi Stadium', lat: 33.9535, lng: -118.3392 },
     airport: { name: 'LAX Airport', lat: 33.9425, lng: -118.4081 },
@@ -31,10 +27,10 @@ export const VENUES = {
 
 // Traveler definitions
 export const TRAVELERS = [
-  { id: 'traveler-1', name: 'Fangshu', origin: 'Seattle, WA', airport: 'SEA', color: '#2563EB', matches: ['atlanta', 'boston', 'seattle', 'los_angeles', 'dallas'] },
+  { id: 'traveler-1', name: 'Fangshu', origin: 'Seattle, WA', airport: 'SEA', color: '#2563EB', matches: ['atlanta', 'boston', 'los_angeles', 'dallas'] },
   { id: 'traveler-2', name: 'Jikai', origin: 'Seattle, WA', airport: 'SEA', color: '#16A34A', matches: ['atlanta'] },
   { id: 'traveler-3', name: 'Zhijiong', origin: 'Los Angeles, CA', airport: 'LAX', color: '#EA580C', matches: ['atlanta', 'boston'] },
-  { id: 'traveler-4', name: 'Chengpeng', origin: 'Bay Area, CA', airport: 'SJC', color: '#9333EA', matches: ['atlanta', 'seattle', 'los_angeles', 'dallas'] },
+  { id: 'traveler-4', name: 'Chengpeng', origin: 'Bay Area, CA', airport: 'SJC', color: '#9333EA', matches: ['atlanta', 'los_angeles', 'dallas'] },
 ];
 
 // Match definitions
@@ -66,20 +62,6 @@ export const MATCHES = [
     group: 'I',
     groupTeams: ['France', 'Senegal', 'Iraq', 'Norway'],
     attendeeIds: ['traveler-1', 'traveler-3'],
-  },
-  {
-    id: 'match-52',
-    number: 52,
-    city: 'Seattle',
-    cityKey: 'seattle',
-    venue: 'Lumen Field',
-    date: '2026-06-24',
-    time: '3:00 PM ET / 12:00 PM PT',
-    teams: 'Bosnia & Herzegovina vs Qatar',
-    stage: 'group',
-    group: 'B',
-    groupTeams: ['Canada', 'Bosnia & Herzegovina', 'Qatar', 'Switzerland'],
-    attendeeIds: ['traveler-1', 'traveler-4'],
   },
   {
     id: 'match-73',
