@@ -48,6 +48,7 @@ export const MATCHES = [
     group: 'H',
     groupTeams: ['Spain', 'Cape Verde', 'Saudi Arabia', 'Uruguay'],
     attendeeIds: ['traveler-1', 'traveler-2', 'traveler-3', 'traveler-4'],
+    seats: { block: 312, row: 8, seatRange: '1–4', level: '300 Level (Upper Deck)', angle: 85 },
   },
   {
     id: 'match-18',
@@ -62,6 +63,7 @@ export const MATCHES = [
     group: 'I',
     groupTeams: ['France', 'Senegal', 'Iraq', 'Norway'],
     attendeeIds: ['traveler-1', 'traveler-3'],
+    seats: { block: 325, row: 6, seatRange: '18–19', level: 'Upper Level', angle: 223 },
   },
   {
     id: 'match-73',
@@ -78,6 +80,7 @@ export const MATCHES = [
       { name: 'B', teams: ['Canada', 'Bosnia & Herzegovina', 'Qatar', 'Switzerland'] },
     ],
     attendeeIds: ['traveler-1', 'traveler-4'],
+    seats: { block: 457, row: 4, seatRange: '21–23', level: '400 Level', angle: 200 },
   },
   {
     id: 'match-78',
@@ -94,6 +97,7 @@ export const MATCHES = [
       { name: 'I', teams: ['France', 'Senegal', 'Iraq', 'Norway'] },
     ],
     attendeeIds: ['traveler-1', 'traveler-4'],
+    seats: { block: 421, row: 4, seatRange: '1–3', level: '400 Level', angle: 168 },
   },
 ];
 
