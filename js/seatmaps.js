@@ -16,42 +16,67 @@ function seq(from, to) { return Array.from({ length: to - from + 1 }, (_, i) => 
 // ───────────────────────────────────────────────────
 const STADIUMS = {
 
-  // ——— REAL DATA: AT&T Stadium (Dallas, WC config from StubHub) ———
+  // ——— REAL DATA: AT&T Stadium (Dallas) — from FIFA WC 2026 seat map ———
   'AT&T Stadium': {
     name: 'AT&T Stadium',
     city: 'Arlington',
     baseRx: 184, baseRy: 146,
     shapePower: 3.5,            // rectangular with rounded corners
     fieldW: 72, fieldH: 44,
-    angleOffset: 90,            // section X01 → 90° (east end zone)
+    angleOffset: 306,           // section X01 starts at NW corner, goes clockwise
     levels: [
+      // — 100 Level (field level, closest to pitch) —
       {
-        name: '100 Level', color: '#1e3a6e', hoverColor: '#3b82f6',
-        inner: 0.36, outer: 0.44,
-        totalSlots: 50, baseNum: 101,
-        sections: [...seq(101,103), ...seq(118,120), ...seq(126,129), ...seq(142,145)],
+        name: '100 Level', color: '#8B6914', hoverColor: '#b8960b',
+        inner: 0.30, outer: 0.37,
+        totalSlots: 60, baseNum: 101,
+        sections: [101,102,103, ...seq(118,125), ...seq(126,130), 142,143, ...seq(144,150)],
       },
+      // — Club 100 (premium suites between 100 and 200, north + south sidelines) —
       {
-        name: '200 Level', color: '#065f46', hoverColor: '#10b981',
-        inner: 0.48, outer: 0.55,
-        totalSlots: 50, baseNum: 201,
-        sections: [...seq(201,205), ...seq(215,230), ...seq(240,250)],
+        name: 'Club', color: '#6B5310', hoverColor: '#9a8030', prefix: 'C',
+        inner: 0.38, outer: 0.43,
+        totalSlots: 60, baseNum: 101,
+        sections: [...seq(106,115), ...seq(132,139)],
       },
+      // — 200 Level —
       {
-        name: '300 Level', color: '#4c1d95', hoverColor: '#8b5cf6',
+        name: '200 Level', color: '#1a5c3a', hoverColor: '#22855a',
+        inner: 0.45, outer: 0.52,
+        totalSlots: 60, baseNum: 201,
+        sections: [201, ...seq(203,205), ...seq(215,230), ...seq(240,250)],
+      },
+      // — Club 200 (premium suites between 200 and 300) —
+      {
+        name: 'Club 200', color: '#5a4580', hoverColor: '#7c5a9e', prefix: 'C',
+        inner: 0.53, outer: 0.57,
+        totalSlots: 60, baseNum: 201,
+        sections: [...seq(206,213), ...seq(232,239)],
+      },
+      // — 300 Level —
+      {
+        name: '300 Level', color: '#3D4A5C', hoverColor: '#6880a0',
         inner: 0.59, outer: 0.66,
-        totalSlots: 50, baseNum: 301,
+        totalSlots: 60, baseNum: 301,
         sections: [...seq(301,305), ...seq(316,330), ...seq(341,350)],
       },
+      // — Club 300 (premium suites between 300 and 400) —
       {
-        name: '400 Level', color: '#7f1d1d', hoverColor: '#ef4444',
-        inner: 0.71, outer: 0.84,
-        totalSlots: 50, baseNum: 401,
-        sections: seq(401, 450),   // continuous upper ring
+        name: 'Club 300', color: '#553070', hoverColor: '#8050a8', prefix: 'C',
+        inner: 0.67, outer: 0.71,
+        totalSlots: 60, baseNum: 301,
+        sections: [...seq(308,314), ...seq(332,339)],
+      },
+      // — 400 Level (upper deck, full 60-section ring including end-zone towers) —
+      {
+        name: '400 Level', color: '#8B2C2C', hoverColor: '#d04040',
+        inner: 0.74, outer: 0.88,
+        totalSlots: 60, baseNum: 401,
+        sections: seq(401, 460),
       },
     ],
     decorations() {
-      // Giant center video board
+      // Giant center video board (AT&T Stadium signature feature)
       return `<rect x="${CX - 28}" y="${CY - 5}" width="56" height="10" rx="2" fill="none" stroke="#334155" stroke-width="0.5" opacity="0.5"/>
               <rect x="${CX - 26}" y="${CY - 3.5}" width="52" height="7" rx="1.5" fill="#0f172a" opacity="0.4"/>`;
     },
@@ -205,14 +230,15 @@ function generateSVGContent(config, userBlock) {
       const fill = isUser ? '#fbbf24' : level.color;
       const cls = 'seatmap-sec' + (isUser ? ' seatmap-user-sec' : '');
 
-      svg += `<path d="${d}" class="${cls}" data-section="${num}" data-level="${li}" data-level-name="${level.name}" fill="${fill}" stroke="#0d1225" stroke-width="0.5"/>`;
+      svg += `<path d="${d}" class="${cls}" data-section="${num}" data-level="${li}" data-level-name="${level.name}" data-prefix="${level.prefix || ''}" fill="${fill}" stroke="#0d1225" stroke-width="0.5"/>`;
 
       // Label
       const ctr = sectionCenter(irx, iry, orx, ory, sA, eA, n);
-      const fontSize = level.totalSlots > 40 ? 3.8 : level.totalSlots > 28 ? 4.5 : 5.5;
-      const labelFill = isUser ? '#1a1a2e' : 'rgba(255,255,255,0.55)';
+      const fontSize = level.prefix ? 3.0 : (level.totalSlots > 40 ? 3.8 : level.totalSlots > 28 ? 4.5 : 5.5);
+      const labelFill = isUser ? '#1a1a2e' : (level.prefix ? 'rgba(200,160,255,0.6)' : 'rgba(255,255,255,0.55)');
       const fw = isUser ? '800' : '500';
-      svg += `<text x="${ctr.x.toFixed(1)}" y="${ctr.y.toFixed(1)}" class="seatmap-label" data-level="${li}" text-anchor="middle" dominant-baseline="central" font-size="${fontSize}" fill="${labelFill}" font-weight="${fw}" font-family="system-ui,sans-serif" pointer-events="none">${num}</text>`;
+      const label = level.prefix ? `${level.prefix}${num}` : num;
+      svg += `<text x="${ctr.x.toFixed(1)}" y="${ctr.y.toFixed(1)}" class="seatmap-label" data-level="${li}" text-anchor="middle" dominant-baseline="central" font-size="${fontSize}" fill="${labelFill}" font-weight="${fw}" font-family="system-ui,sans-serif" pointer-events="none">${label}</text>`;
     });
   });
 
@@ -413,12 +439,13 @@ function setupInteraction(container, mapId, config, userBlock, userRow, userSeat
       const num = parseInt(sec.dataset.section);
       const li = parseInt(sec.dataset.level);
       const lvName = sec.dataset.levelName;
+      const prefix = sec.dataset.prefix || '';
       const isUser = (num === userBlock);
 
       if (!isUser) sec.setAttribute('fill', config.levels[li].hoverColor);
       sec.style.filter = 'brightness(1.3)';
 
-      let html = `<div class="seatmap-tip-num">Section ${num}</div><div class="seatmap-tip-level">${lvName}</div>`;
+      let html = `<div class="seatmap-tip-num">Section ${prefix}${num}</div><div class="seatmap-tip-level">${lvName}</div>`;
       if (isUser) {
         html += `<div class="seatmap-tip-user">⭐ YOUR SEATS</div>`;
         html += `<div class="seatmap-tip-detail">Row ${userRow} · Seats ${userSeats}</div>`;
