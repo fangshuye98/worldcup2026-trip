@@ -249,33 +249,200 @@
   opacity: 0.85;
 }
 
-/* Seat section visualization */
-.seat-section {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 16px;
+/* ── Interactive Seat Map ── */
+.seat-section-wrapper {
   margin-bottom: 16px;
 }
-.seat-map-container {
-  flex: 0 0 180px;
-  max-width: 180px;
+.interactive-seatmap {
+  margin-bottom: 10px;
 }
-.stadium-svg {
+
+/* Panel chrome */
+.seatmap-panel {
+  background: #0d1225;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.seatmap-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 6px;
+}
+.seatmap-venue-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  letter-spacing: 0.2px;
+}
+.seatmap-find-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(251,191,36,0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(251,191,36,0.25);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.seatmap-find-btn:hover { background: rgba(251,191,36,0.22); }
+
+/* Level toggle bar */
+.seatmap-level-bar {
+  display: flex;
+  gap: 6px;
+  padding: 4px 16px 8px;
+  flex-wrap: wrap;
+}
+.seatmap-lvl-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-decoration: line-through;
+}
+.seatmap-lvl-btn.active {
+  color: rgba(255,255,255,0.85);
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.18);
+  text-decoration: none;
+}
+.seatmap-lvl-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+/* Viewport (the interactive map area) */
+.seatmap-viewport {
+  position: relative;
+  height: 350px;
+  overflow: hidden;
+  background: #080c1a;
+  cursor: grab;
+}
+.seatmap-viewport.grabbing { cursor: grabbing; }
+.seatmap-svg {
   width: 100%;
-  height: auto;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+  height: 100%;
+  display: block;
 }
-.seat-ticket-card {
-  flex: 1;
-  min-width: 0;
+
+/* Sections */
+.seatmap-sec {
+  cursor: pointer;
+  transition: filter 0.12s;
+}
+.seatmap-user-sec {
+  filter: drop-shadow(0 0 4px rgba(251,191,36,0.5));
+}
+
+/* Tooltip */
+.seatmap-tooltip {
+  display: none;
+  position: absolute;
+  pointer-events: none;
+  background: rgba(10,14,31,0.94);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 8px;
+  padding: 8px 12px;
+  z-index: 20;
+  min-width: 115px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.45);
+  backdrop-filter: blur(6px);
+}
+.seatmap-tip-num {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
+.seatmap-tip-level {
+  font-size: 10px;
+  color: rgba(255,255,255,0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 1px;
+}
+.seatmap-tip-user {
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fbbf24;
+}
+.seatmap-tip-detail {
+  font-size: 11px;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.4;
+}
+
+/* Zoom controls */
+.seatmap-zoom-bar {
+  position: absolute;
+  right: 10px;
+  bottom: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  z-index: 10;
+}
+.seatmap-zoom-btn {
+  width: 30px;
+  height: 30px;
+  background: rgba(10,14,31,0.82);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #fff;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-weight: 600;
+}
+.seatmap-zoom-btn:first-child { border-radius: 6px 6px 0 0; }
+.seatmap-zoom-btn:last-child  { border-radius: 0 0 6px 6px; }
+.seatmap-zoom-btn:hover { background: rgba(59,130,246,0.35); }
+
+/* Hint */
+.seatmap-hint {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  pointer-events: none;
+  letter-spacing: 0.3px;
+  transition: opacity 0.4s;
+}
+
+/* Ticket strip below map */
+.seat-ticket-strip {
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  padding: 14px 16px;
 }
 .seat-ticket-header {
   font-size: 14px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255,255,255,0.9);
   margin-bottom: 12px;
   letter-spacing: 0.5px;
 }
@@ -289,17 +456,17 @@
   margin-bottom: 12px;
 }
 .seat-ticket-item {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255,255,255,0.08);
   border-radius: 8px;
   padding: 8px 14px;
   text-align: center;
   flex: 1;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255,255,255,0.08);
 }
 .seat-ticket-label {
   font-size: 9px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255,255,255,0.4);
   text-transform: uppercase;
   letter-spacing: 1.5px;
   margin-bottom: 4px;
@@ -312,29 +479,18 @@
 }
 .seat-ticket-level {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255,255,255,0.5);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
+
 @media (max-width: 480px) {
-  .seat-section {
-    flex-direction: column;
-    gap: 12px;
-  }
-  .seat-map-container {
-    flex: none;
-    max-width: 160px;
-    margin: 0 auto;
-  }
-  .seat-ticket-grid {
-    gap: 8px;
-  }
-  .seat-ticket-value {
-    font-size: 16px;
-  }
-  .seat-ticket-item {
-    padding: 6px 10px;
-  }
+  .seatmap-viewport { height: 280px; }
+  .seatmap-level-bar { gap: 4px; }
+  .seatmap-lvl-btn { font-size: 9px; padding: 2px 8px; }
+  .seat-ticket-grid { gap: 8px; }
+  .seat-ticket-value { font-size: 16px; }
+  .seat-ticket-item { padding: 6px 10px; }
 }
 
 /* Leaflet map overrides */
