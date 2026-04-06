@@ -393,10 +393,17 @@ const VENUE_IMAGES = {
   'AT&T Stadium': {
     overview: 'assets/dallas-overview.png',
     nearby: 'assets/dallas-nearby.png',
+    position: 'Upper Right',
   },
   'SoFi Stadium': {
     overview: 'assets/la-overview.png',
     nearby: 'assets/la-nearby.png',
+    position: 'Upper Left',
+  },
+  'Gillette Stadium': {
+    overview: 'assets/boston-overview.png',
+    nearby: 'assets/boston-nearby.png',
+    position: 'Lower Right',
   },
 };
 
@@ -427,7 +434,7 @@ export function initSeatMaps() {
               <img src="${imgs.overview}" alt="Stadium overview" class="seatmap-img" />
             </div>
             <div class="seatmap-img-panel">
-              <div class="seatmap-img-label">📍 Your Area</div>
+              <div class="seatmap-img-label">📍 Your Area · ${imgs.position}</div>
               <img src="${imgs.nearby}" alt="Nearby sections" class="seatmap-img" />
             </div>
           </div>
