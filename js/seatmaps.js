@@ -127,7 +127,7 @@ function buildOverview(cfg, userBlock) {
   const n = cfg.shapePower;
   let svg = '';
   const lastLv = cfg.levels[cfg.levels.length - 1];
-  svg += `<path d="${outline(cfg.baseRx * (lastLv.outer + 0.04), cfg.baseRy * (lastLv.outer + 0.04), n)}" fill="#eee" stroke="#ccc" stroke-width="1"/>`;
+  svg += `<path d="${outline(cfg.baseRx * (lastLv.outer + 0.04), cfg.baseRy * (lastLv.outer + 0.04), n)}" fill="#e8e8e8" stroke="#ccc" stroke-width="1"/>`;
 
   cfg.levels.forEach(lv => {
     const irx = cfg.baseRx * lv.inner, iry = cfg.baseRy * lv.inner;
@@ -367,7 +367,7 @@ function setupNearbyInteraction(container) {
         const prefix = sec.dataset.prefix || '';
         const name = sec.dataset.name;
         sec.style.filter = 'brightness(1.25)';
-        tooltip.innerHTML = `<b>Section ${prefix}${num}</b><br><span style="font-size:10px;color:#888">${name}</span>`;
+        tooltip.innerHTML = `<b>Section ${prefix}${num}</b><br><span style="font-size:10px;color:#999">${name}</span>`;
         tooltip.style.display = 'block';
       });
       sec.addEventListener('mouseleave', () => {
