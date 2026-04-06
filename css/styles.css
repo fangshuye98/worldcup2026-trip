@@ -249,7 +249,7 @@
   opacity: 0.85;
 }
 
-/* ── Interactive Seat Map ── */
+/* ── 3-Panel Seat Map ── */
 .seat-section-wrapper {
   margin-bottom: 16px;
 }
@@ -257,181 +257,141 @@
   margin-bottom: 10px;
 }
 
-/* Panel chrome */
-.seatmap-panel {
-  background: #0d1225;
-  border-radius: 12px;
-  overflow: hidden;
+/* 3-panel layout */
+.seatmap-3panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
-.seatmap-top-bar {
+.seatmap-row-top {
+  display: flex;
+  gap: 10px;
+}
+.seatmap-overview {
+  flex: 0 0 160px;
+  background: #f4f4f4;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.seatmap-overview-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.seatmap-nearby {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Nearby blocks panel */
+.nb-panel {
+  background: #f4f4f4;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.nb-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px 6px;
-}
-.seatmap-venue-title {
-  font-size: 14px;
+  padding: 8px 12px 4px;
+  font-size: 12px;
   font-weight: 700;
-  color: rgba(255,255,255,0.9);
-  letter-spacing: 0.2px;
-}
-.seatmap-find-btn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  background: rgba(251,191,36,0.12);
-  color: #fbbf24;
-  border: 1px solid rgba(251,191,36,0.25);
-  border-radius: 6px;
-  padding: 4px 10px;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.seatmap-find-btn:hover { background: rgba(251,191,36,0.22); }
-
-/* Level toggle bar */
-.seatmap-level-bar {
-  display: flex;
-  gap: 6px;
-  padding: 4px 16px 8px;
-  flex-wrap: wrap;
-}
-.seatmap-lvl-btn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.35);
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 20px;
-  padding: 3px 10px;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  text-decoration: line-through;
-}
-.seatmap-lvl-btn.active {
   color: rgba(255,255,255,0.85);
-  background: rgba(255,255,255,0.08);
-  border-color: rgba(255,255,255,0.18);
-  text-decoration: none;
 }
-.seatmap-lvl-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  display: inline-block;
-}
-
-/* Viewport (the interactive map area) */
-.seatmap-viewport {
-  position: relative;
-  height: 350px;
-  overflow: hidden;
-  background: #080c1a;
-  cursor: grab;
-}
-.seatmap-viewport.grabbing { cursor: grabbing; }
-.seatmap-svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-/* Sections */
-.seatmap-sec {
-  cursor: pointer;
-  transition: filter 0.12s;
-}
-.seatmap-user-sec {
-  filter: drop-shadow(0 0 4px rgba(251,191,36,0.5));
-}
-
-/* Tooltip */
-.seatmap-tooltip {
-  display: none;
-  position: absolute;
-  pointer-events: none;
-  background: rgba(10,14,31,0.94);
-  border: 1px solid rgba(255,255,255,0.14);
-  border-radius: 8px;
-  padding: 8px 12px;
-  z-index: 20;
-  min-width: 115px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.45);
-  backdrop-filter: blur(6px);
-}
-.seatmap-tip-num {
-  font-size: 14px;
-  font-weight: 700;
-  color: #fff;
-  line-height: 1.2;
-}
-.seatmap-tip-level {
-  font-size: 10px;
-  color: rgba(255,255,255,0.45);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-top: 1px;
-}
-.seatmap-tip-user {
-  margin-top: 6px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #fbbf24;
-}
-.seatmap-tip-detail {
-  font-size: 11px;
-  color: rgba(255,255,255,0.65);
-  line-height: 1.4;
-}
-
-/* Zoom controls */
-.seatmap-zoom-bar {
-  position: absolute;
-  right: 10px;
-  bottom: 36px;
+.nb-zoom-bar {
   display: flex;
-  flex-direction: column;
-  gap: 1px;
-  z-index: 10;
+  gap: 2px;
 }
-.seatmap-zoom-btn {
-  width: 30px;
-  height: 30px;
-  background: rgba(10,14,31,0.82);
-  border: 1px solid rgba(255,255,255,0.12);
+.nb-zoom-btn {
+  width: 24px;
+  height: 24px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
   color: #fff;
-  font-size: 16px;
+  font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.15s;
+  border-radius: 4px;
   font-weight: 600;
+  transition: background 0.15s;
 }
-.seatmap-zoom-btn:first-child { border-radius: 6px 6px 0 0; }
-.seatmap-zoom-btn:last-child  { border-radius: 0 0 6px 6px; }
-.seatmap-zoom-btn:hover { background: rgba(59,130,246,0.35); }
-
-/* Hint */
-.seatmap-hint {
+.nb-zoom-btn:hover { background: rgba(255,255,255,0.2); }
+.nb-viewport {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+  cursor: grab;
+}
+.nb-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.nb-sec {
+  cursor: pointer;
+  transition: filter 0.12s;
+}
+.nb-tooltip {
+  display: none;
   position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 10px;
-  color: rgba(255,255,255,0.3);
   pointer-events: none;
-  letter-spacing: 0.3px;
-  transition: opacity 0.4s;
+  background: rgba(20,20,40,0.92);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: #fff;
+  z-index: 20;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.4);
+  line-height: 1.4;
 }
+
+/* Section detail panel */
+.sd-panel {
+  background: rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.sd-header {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fbbf24;
+  margin-bottom: 10px;
+}
+.sd-view {
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.sd-svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+.sd-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+}
+.sd-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: rgba(255,255,255,0.5);
+}
+.sd-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  display: inline-block;
+}
+.sd-dot-user { background: #fbbf24; }
+.sd-dot-other { background: #e8e8e8; border: 1px solid #d0d0d0; }
 
 /* Ticket strip below map */
 .seat-ticket-strip {
@@ -485,9 +445,9 @@
 }
 
 @media (max-width: 480px) {
-  .seatmap-viewport { height: 280px; }
-  .seatmap-level-bar { gap: 4px; }
-  .seatmap-lvl-btn { font-size: 9px; padding: 2px 8px; }
+  .seatmap-row-top { flex-direction: column; }
+  .seatmap-overview { flex: none; max-width: 140px; margin: 0 auto; }
+  .nb-viewport { height: 180px; }
   .seat-ticket-grid { gap: 8px; }
   .seat-ticket-value { font-size: 16px; }
   .seat-ticket-item { padding: 6px 10px; }
