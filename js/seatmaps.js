@@ -388,6 +388,19 @@ function setupNearbyInteraction(container) {
   });
 }
 
+// ─── Venue image maps (use real screenshots when available) ─────
+const VENUE_IMAGES = {
+  'AT&T Stadium': {
+    overview: 'assets/dallas-overview.png',
+    nearby: 'assets/dallas-nearby.png',
+  },
+};
+
+function findVenueImages(venue) {
+  for (const k of Object.keys(VENUE_IMAGES)) if (venue.includes(k)) return VENUE_IMAGES[k];
+  return null;
+}
+
 // ─── Public API ────────────────────────────────────
 
 export function initSeatMaps() {
@@ -398,17 +411,35 @@ export function initSeatMaps() {
     const seats = el.dataset.seats;
     const level = el.dataset.level;
     const cfg = findConfig(venue);
-    if (!cfg) return;
+    const imgs = findVenueImages(venue);
 
-    el.innerHTML = `
-      <div class="seatmap-3panel">
-        <div class="seatmap-row-top">
-          <div class="seatmap-overview">${buildOverview(cfg, block)}</div>
-          <div class="seatmap-nearby">${buildNearbyBlocks(cfg, block, row, seats, level)}</div>
-        </div>
-        <div class="seatmap-detail">${buildSectionDetail(cfg, block, row, seats)}</div>
-      </div>`;
-
-    setupNearbyInteraction(el);
+    if (imgs) {
+      // Use real screenshots + section detail grid
+      el.innerHTML = `
+        <div class="seatmap-3panel">
+          <div class="seatmap-row-top">
+            <div class="seatmap-img-panel">
+              <div class="seatmap-img-label">🏟️ Stadium Overview</div>
+              <img src="${imgs.overview}" alt="Stadium overview" class="seatmap-img" />
+            </div>
+            <div class="seatmap-img-panel">
+              <div class="seatmap-img-label">📍 Your Area</div>
+              <img src="${imgs.nearby}" alt="Nearby sections" class="seatmap-img" />
+            </div>
+          </div>
+          ${cfg ? `<div class="seatmap-detail">${buildSectionDetail(cfg, block, row, seats)}</div>` : ''}
+        </div>`;
+    } else if (cfg) {
+      // Fallback to generated SVGs
+      el.innerHTML = `
+        <div class="seatmap-3panel">
+          <div class="seatmap-row-top">
+            <div class="seatmap-overview">${buildOverview(cfg, block)}</div>
+            <div class="seatmap-nearby">${buildNearbyBlocks(cfg, block, row, seats, level)}</div>
+          </div>
+          <div class="seatmap-detail">${buildSectionDetail(cfg, block, row, seats)}</div>
+        </div>`;
+      setupNearbyInteraction(el);
+    }
   });
 }

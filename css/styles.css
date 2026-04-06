@@ -267,6 +267,25 @@
   display: flex;
   gap: 10px;
 }
+/* Image-based panels */
+.seatmap-img-panel {
+  flex: 1;
+  background: #f5f5f5;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+}
+.seatmap-img-label {
+  padding: 8px 12px 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #333;
+}
+.seatmap-img {
+  width: 100%;
+  display: block;
+  border-radius: 0 0 10px 10px;
+}
 .seatmap-overview {
   flex: 0 0 160px;
   background: #f5f5f5;
