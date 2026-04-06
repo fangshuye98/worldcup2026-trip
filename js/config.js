@@ -79,7 +79,7 @@ export const MATCHES = [
       { name: 'A', teams: ['Mexico', 'South Africa', 'South Korea', 'Czechia'] },
       { name: 'B', teams: ['Canada', 'Bosnia & Herzegovina', 'Qatar', 'Switzerland'] },
     ],
-    attendeeIds: ['traveler-1', 'traveler-4'],
+    attendeeIds: ['traveler-4'],
     seats: { block: 457, row: 4, seatRange: '21–23', level: '400 Level', angle: 200 },
   },
   {
