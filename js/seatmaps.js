@@ -1,27 +1,76 @@
 // Interactive Stadium Seat Maps — StubHub-style per-venue maps
-// Each stadium has a unique shape, section layout, and level structure.
+// AT&T Stadium uses real section numbers from StubHub/FIFA WC config.
+// Other stadiums use approximate generic layouts until real data is added.
 
 const CX = 250, CY = 210;
 const VIEWBOX = '0 0 500 420';
 const SECTION_GAP = 0.6; // degrees between sections
 
 // ───────────────────────────────────────────────────
-// Stadium configurations (shape, levels, sections)
+// Helpers for building section arrays
+// ───────────────────────────────────────────────────
+function seq(from, to) { return Array.from({ length: to - from + 1 }, (_, i) => from + i); }
+
+// ───────────────────────────────────────────────────
+// Stadium configurations
 // ───────────────────────────────────────────────────
 const STADIUMS = {
+
+  // ——— REAL DATA: AT&T Stadium (Dallas, WC config from StubHub) ———
+  'AT&T Stadium': {
+    name: 'AT&T Stadium',
+    city: 'Arlington',
+    baseRx: 184, baseRy: 146,
+    shapePower: 3.5,            // rectangular with rounded corners
+    fieldW: 72, fieldH: 44,
+    angleOffset: 90,            // section X01 → 90° (east end zone)
+    levels: [
+      {
+        name: '100 Level', color: '#1e3a6e', hoverColor: '#3b82f6',
+        inner: 0.36, outer: 0.44,
+        totalSlots: 50, baseNum: 101,
+        sections: [...seq(101,103), ...seq(118,120), ...seq(126,129), ...seq(142,145)],
+      },
+      {
+        name: '200 Level', color: '#065f46', hoverColor: '#10b981',
+        inner: 0.48, outer: 0.55,
+        totalSlots: 50, baseNum: 201,
+        sections: [...seq(201,205), ...seq(215,230), ...seq(240,250)],
+      },
+      {
+        name: '300 Level', color: '#4c1d95', hoverColor: '#8b5cf6',
+        inner: 0.59, outer: 0.66,
+        totalSlots: 50, baseNum: 301,
+        sections: [...seq(301,305), ...seq(316,330), ...seq(341,350)],
+      },
+      {
+        name: '400 Level', color: '#7f1d1d', hoverColor: '#ef4444',
+        inner: 0.71, outer: 0.84,
+        totalSlots: 50, baseNum: 401,
+        sections: seq(401, 450),   // continuous upper ring
+      },
+    ],
+    decorations() {
+      // Giant center video board
+      return `<rect x="${CX - 28}" y="${CY - 5}" width="56" height="10" rx="2" fill="none" stroke="#334155" stroke-width="0.5" opacity="0.5"/>
+              <rect x="${CX - 26}" y="${CY - 3.5}" width="52" height="7" rx="1.5" fill="#0f172a" opacity="0.4"/>`;
+    },
+  },
+
+  // ——— GENERIC: Mercedes-Benz Stadium (Atlanta) ———
   'Mercedes-Benz Stadium': {
     name: 'Mercedes-Benz Stadium',
     city: 'Atlanta',
     baseRx: 185, baseRy: 155,
-    shapePower: 2.8,            // slightly octagonal superellipse
+    shapePower: 2.8,
     fieldW: 78, fieldH: 50,
+    angleOffset: 0,
     levels: [
-      { name: '100 Level', color: '#1e4080', hoverColor: '#3b82f6', inner: 0.44, outer: 0.55, count: 32, startNum: 101 },
-      { name: '200 Level', color: '#4c1d95', hoverColor: '#8b5cf6', inner: 0.59, outer: 0.68, count: 24, startNum: 201 },
-      { name: '300 Level', color: '#7f1d1d', hoverColor: '#ef4444', inner: 0.73, outer: 0.88, count: 32, startNum: 301 },
+      { name: '100 Level', color: '#1e4080', hoverColor: '#3b82f6', inner: 0.44, outer: 0.55, totalSlots: 32, baseNum: 101, sections: seq(101, 132) },
+      { name: '200 Level', color: '#4c1d95', hoverColor: '#8b5cf6', inner: 0.59, outer: 0.68, totalSlots: 24, baseNum: 201, sections: seq(201, 224) },
+      { name: '300 Level', color: '#7f1d1d', hoverColor: '#ef4444', inner: 0.73, outer: 0.88, totalSlots: 32, baseNum: 301, sections: seq(301, 332) },
     ],
-    decorations(svg) {
-      // Subtle 8 petal roof lines
+    decorations() {
       let d = '';
       for (let i = 0; i < 8; i++) {
         const a = i * 45 * Math.PI / 180;
@@ -30,59 +79,45 @@ const STADIUMS = {
         d += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#1a2040" stroke-width="0.4" opacity="0.5"/>`;
       }
       return d;
-    }
+    },
   },
+
+  // ——— GENERIC: Gillette Stadium (Boston) ———
   'Gillette Stadium': {
     name: 'Gillette Stadium',
     city: 'Foxborough',
     baseRx: 192, baseRy: 138,
-    shapePower: 2.0,            // standard ellipse (elongated)
+    shapePower: 2.0,
     fieldW: 76, fieldH: 46,
+    angleOffset: 0,
     levels: [
-      { name: '100 Level', color: '#1e3a6e', hoverColor: '#3b82f6', inner: 0.44, outer: 0.55, count: 36, startNum: 101 },
-      { name: '200 Level', color: '#4c1d95', hoverColor: '#8b5cf6', inner: 0.59, outer: 0.68, count: 24, startNum: 201 },
-      { name: '300 Level', color: '#7f1d1d', hoverColor: '#ef4444', inner: 0.73, outer: 0.88, count: 36, startNum: 301 },
+      { name: '100 Level', color: '#1e3a6e', hoverColor: '#3b82f6', inner: 0.44, outer: 0.55, totalSlots: 36, baseNum: 101, sections: seq(101, 136) },
+      { name: '200 Level', color: '#4c1d95', hoverColor: '#8b5cf6', inner: 0.59, outer: 0.68, totalSlots: 24, baseNum: 201, sections: seq(201, 224) },
+      { name: '300 Level', color: '#7f1d1d', hoverColor: '#ef4444', inner: 0.73, outer: 0.88, totalSlots: 36, baseNum: 301, sections: seq(301, 336) },
     ],
     decorations() {
-      // Lighthouse beacon at ~0° (top, north)
       return `<polygon points="${CX},${CY - 155} ${CX - 4},${CY - 145} ${CX + 4},${CY - 145}" fill="#334155" opacity="0.4"/>
               <circle cx="${CX}" cy="${CY - 157}" r="2" fill="#fbbf24" opacity="0.35"/>`;
-    }
+    },
   },
+
+  // ——— GENERIC: SoFi Stadium (Los Angeles) ———
   'SoFi Stadium': {
     name: 'SoFi Stadium',
     city: 'Inglewood',
     baseRx: 196, baseRy: 132,
-    shapePower: 2.3,            // slightly squared, wide
+    shapePower: 2.3,
     fieldW: 68, fieldH: 40,
+    angleOffset: 0,
     levels: [
-      { name: '100 Level', color: '#1e3a6e', hoverColor: '#3b82f6', inner: 0.34, outer: 0.43, count: 32, startNum: 101 },
-      { name: '200 Level', color: '#065f46', hoverColor: '#10b981', inner: 0.47, outer: 0.54, count: 24, startNum: 201 },
-      { name: '300 Level', color: '#4c1d95', hoverColor: '#8b5cf6', inner: 0.58, outer: 0.66, count: 32, startNum: 301 },
-      { name: '400 Level', color: '#7f1d1d', hoverColor: '#ef4444', inner: 0.70, outer: 0.82, count: 60, startNum: 401 },
+      { name: '100 Level', color: '#1e3a6e', hoverColor: '#3b82f6', inner: 0.34, outer: 0.43, totalSlots: 32, baseNum: 101, sections: seq(101, 132) },
+      { name: '200 Level', color: '#065f46', hoverColor: '#10b981', inner: 0.47, outer: 0.54, totalSlots: 24, baseNum: 201, sections: seq(201, 224) },
+      { name: '300 Level', color: '#4c1d95', hoverColor: '#8b5cf6', inner: 0.58, outer: 0.66, totalSlots: 32, baseNum: 301, sections: seq(301, 332) },
+      { name: '400 Level', color: '#7f1d1d', hoverColor: '#ef4444', inner: 0.70, outer: 0.82, totalSlots: 60, baseNum: 401, sections: seq(401, 460) },
     ],
     decorations() {
-      // Canopy arc
       return `<ellipse cx="${CX}" cy="${CY}" rx="172" ry="116" fill="none" stroke="#1e293b" stroke-width="0.6" stroke-dasharray="4 3" opacity="0.35"/>`;
-    }
-  },
-  'AT&T Stadium': {
-    name: 'AT&T Stadium',
-    city: 'Arlington',
-    baseRx: 184, baseRy: 146,
-    shapePower: 3.5,            // more rectangular
-    fieldW: 72, fieldH: 44,
-    levels: [
-      { name: '100 Level', color: '#1e3a6e', hoverColor: '#3b82f6', inner: 0.34, outer: 0.43, count: 36, startNum: 101 },
-      { name: '200 Level', color: '#065f46', hoverColor: '#10b981', inner: 0.47, outer: 0.54, count: 28, startNum: 201 },
-      { name: '300 Level', color: '#4c1d95', hoverColor: '#8b5cf6', inner: 0.58, outer: 0.66, count: 36, startNum: 301 },
-      { name: '400 Level', color: '#7f1d1d', hoverColor: '#ef4444', inner: 0.70, outer: 0.82, count: 42, startNum: 401 },
-    ],
-    decorations() {
-      // Giant center video board
-      return `<rect x="${CX - 28}" y="${CY - 5}" width="56" height="10" rx="2" fill="none" stroke="#334155" stroke-width="0.5" opacity="0.5"/>
-              <rect x="${CX - 26}" y="${CY - 3.5}" width="52" height="7" rx="1.5" fill="#0f172a" opacity="0.4"/>`;
-    }
+    },
   },
 };
 
@@ -90,11 +125,10 @@ const STADIUMS = {
 // Geometry helpers
 // ───────────────────────────────────────────────────
 
-/** Point on superellipse boundary.  angleDeg: 0=top (12-o'clock), clockwise. */
+/** Point on superellipse boundary. angleDeg: 0=top (12-o'clock), clockwise. */
 function superellipsePoint(rx, ry, angleDeg, n) {
   const rad = angleDeg * Math.PI / 180;
-  const s = Math.sin(rad);   // horizontal
-  const c = Math.cos(rad);   // vertical
+  const s = Math.sin(rad), c = Math.cos(rad);
   const as = Math.abs(s), ac = Math.abs(c);
   let r;
   if (as < 1e-12) r = ry;
@@ -117,14 +151,14 @@ function sectionPath(irx, iry, orx, ory, startA, endA, n, steps = 6) {
   return 'M' + pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join('L') + 'Z';
 }
 
-/** Center point of a section (for label placement). */
+/** Center point of a section. */
 function sectionCenter(irx, iry, orx, ory, startA, endA, n) {
   const midA = (startA + endA) / 2;
   const mrx = (irx + orx) / 2, mry = (iry + ory) / 2;
   return superellipsePoint(mrx, mry, midA, n);
 }
 
-/** Build a closed superellipse outline path. */
+/** Closed superellipse outline path. */
 function outlinePath(rx, ry, n, stepDeg = 2) {
   const pts = [];
   for (let a = 0; a < 360; a += stepDeg) pts.push(superellipsePoint(rx, ry, a, n));
@@ -132,11 +166,24 @@ function outlinePath(rx, ry, n, stepDeg = 2) {
 }
 
 // ───────────────────────────────────────────────────
+// Section angle helpers — unified for real & generic
+// ───────────────────────────────────────────────────
+
+/** Returns { sA, eA } for a section number within its level. */
+function sectionAngles(level, sectionNum, angleOffset) {
+  const arcWidth = 360 / level.totalSlots;
+  const idx = sectionNum - level.baseNum;
+  const sA = angleOffset + idx * arcWidth + SECTION_GAP / 2;
+  const eA = angleOffset + (idx + 1) * arcWidth - SECTION_GAP / 2;
+  return { sA, eA };
+}
+
+// ───────────────────────────────────────────────────
 // SVG generation
 // ───────────────────────────────────────────────────
 
 function generateSVGContent(config, userBlock) {
-  const { baseRx, baseRy, shapePower: n, fieldW, fieldH, levels } = config;
+  const { baseRx, baseRy, shapePower: n, fieldW, fieldH, levels, angleOffset } = config;
   let svg = '';
 
   // Outer background shell
@@ -145,17 +192,13 @@ function generateSVGContent(config, userBlock) {
   const bgRy = baseRy * (outerLevel.outer + 0.04);
   svg += `<path d="${outlinePath(bgRx, bgRy, n)}" fill="#0a0e1f" stroke="#1a2040" stroke-width="1"/>`;
 
-  // Draw sections level by level (inner → outer)
+  // Draw sections level by level
   levels.forEach((level, li) => {
     const irx = baseRx * level.inner, iry = baseRy * level.inner;
     const orx = baseRx * level.outer, ory = baseRy * level.outer;
-    const arc = 360 / level.count;
-    const halfGap = SECTION_GAP / 2;
 
-    for (let si = 0; si < level.count; si++) {
-      const num = level.startNum + si;
-      const sA = si * arc + halfGap;
-      const eA = (si + 1) * arc - halfGap;
+    level.sections.forEach(num => {
+      const { sA, eA } = sectionAngles(level, num, angleOffset);
       const isUser = (num === userBlock);
 
       const d = sectionPath(irx, iry, orx, ory, sA, eA, n);
@@ -166,11 +209,11 @@ function generateSVGContent(config, userBlock) {
 
       // Label
       const ctr = sectionCenter(irx, iry, orx, ory, sA, eA, n);
-      const fontSize = level.count > 40 ? 3.8 : level.count > 28 ? 4.5 : 5.5;
+      const fontSize = level.totalSlots > 40 ? 3.8 : level.totalSlots > 28 ? 4.5 : 5.5;
       const labelFill = isUser ? '#1a1a2e' : 'rgba(255,255,255,0.55)';
       const fw = isUser ? '800' : '500';
       svg += `<text x="${ctr.x.toFixed(1)}" y="${ctr.y.toFixed(1)}" class="seatmap-label" data-level="${li}" text-anchor="middle" dominant-baseline="central" font-size="${fontSize}" fill="${labelFill}" font-weight="${fw}" font-family="system-ui,sans-serif" pointer-events="none">${num}</text>`;
-    }
+    });
   });
 
   // Animated glow on user section
@@ -194,16 +237,12 @@ function generateSVGContent(config, userBlock) {
   // Field
   const fx = CX - fieldW / 2, fy = CY - fieldH / 2;
   svg += `<rect x="${fx}" y="${fy}" width="${fieldW}" height="${fieldH}" rx="4" fill="#14451a" stroke="#1f6b28" stroke-width="0.5"/>`;
-  // Halfway line
   svg += `<line x1="${CX}" y1="${fy}" x2="${CX}" y2="${fy + fieldH}" stroke="#1f6b28" stroke-width="0.3"/>`;
-  // Center circle
   svg += `<circle cx="${CX}" cy="${CY}" r="${fieldH * 0.15}" fill="none" stroke="#1f6b28" stroke-width="0.3"/>`;
   svg += `<circle cx="${CX}" cy="${CY}" r="1" fill="#1f6b28"/>`;
-  // Penalty areas
   const paW = fieldW * 0.44, paH = fieldH * 0.2;
   svg += `<rect x="${CX - paW / 2}" y="${fy}" width="${paW}" height="${paH}" rx="1" fill="none" stroke="#1f6b28" stroke-width="0.25"/>`;
   svg += `<rect x="${CX - paW / 2}" y="${fy + fieldH - paH}" width="${paW}" height="${paH}" rx="1" fill="none" stroke="#1f6b28" stroke-width="0.25"/>`;
-  // Goal boxes
   const gbW = fieldW * 0.22, gbH = fieldH * 0.08;
   svg += `<rect x="${CX - gbW / 2}" y="${fy}" width="${gbW}" height="${gbH}" rx="0.5" fill="none" stroke="#1f6b28" stroke-width="0.2"/>`;
   svg += `<rect x="${CX - gbW / 2}" y="${fy + fieldH - gbH}" width="${gbW}" height="${gbH}" rx="0.5" fill="none" stroke="#1f6b28" stroke-width="0.2"/>`;
@@ -213,17 +252,13 @@ function generateSVGContent(config, userBlock) {
 
 function findUserCenter(config, userBlock) {
   if (!userBlock) return null;
-  const { baseRx, baseRy, shapePower: n, levels } = config;
+  const { baseRx, baseRy, shapePower: n, levels, angleOffset } = config;
   for (const level of levels) {
-    const idx = userBlock - level.startNum;
-    if (idx >= 0 && idx < level.count) {
-      const irx = baseRx * level.inner, iry = baseRy * level.inner;
-      const orx = baseRx * level.outer, ory = baseRy * level.outer;
-      const arc = 360 / level.count;
-      const sA = idx * arc + SECTION_GAP / 2;
-      const eA = (idx + 1) * arc - SECTION_GAP / 2;
-      return sectionCenter(irx, iry, orx, ory, sA, eA, n);
-    }
+    if (!level.sections.includes(userBlock)) continue;
+    const irx = baseRx * level.inner, iry = baseRy * level.inner;
+    const orx = baseRx * level.outer, ory = baseRy * level.outer;
+    const { sA, eA } = sectionAngles(level, userBlock, angleOffset);
+    return sectionCenter(irx, iry, orx, ory, sA, eA, n);
   }
   return null;
 }
@@ -281,7 +316,6 @@ function setupInteraction(container, mapId, config, userBlock, userRow, userSeat
   const g = svg.querySelector('.seatmap-g');
   const tooltip = viewport.querySelector('.seatmap-tooltip');
 
-  // ── State ──
   const st = { zoom: 1, panX: 0, panY: 0, dragging: false, sx: 0, sy: 0, spx: 0, spy: 0 };
 
   function applyTransform(animate) {
@@ -294,12 +328,10 @@ function setupInteraction(container, mapId, config, userBlock, userRow, userSeat
     return { sx: 500 / r.width, sy: 420 / r.height };
   }
 
-  // ── Zoom buttons ──
+  // Zoom buttons
   panel.querySelectorAll('.seatmap-zoom-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const a = btn.dataset.action;
-      const vb = viewBoxScale();
-      // Zoom centred on viewBox middle
       const vcx = 250, vcy = 210;
       const ccx = (vcx - st.panX) / st.zoom;
       const ccy = (vcy - st.panY) / st.zoom;
@@ -313,7 +345,7 @@ function setupInteraction(container, mapId, config, userBlock, userRow, userSeat
     });
   });
 
-  // ── Wheel zoom (centred on cursor) ──
+  // Wheel zoom
   viewport.addEventListener('wheel', e => {
     e.preventDefault();
     const r = svg.getBoundingClientRect();
@@ -329,7 +361,7 @@ function setupInteraction(container, mapId, config, userBlock, userRow, userSeat
     applyTransform(false);
   }, { passive: false });
 
-  // ── Mouse drag pan ──
+  // Mouse drag pan
   viewport.addEventListener('mousedown', e => {
     if (e.button !== 0) return;
     st.dragging = true; st.sx = e.clientX; st.sy = e.clientY;
@@ -348,7 +380,7 @@ function setupInteraction(container, mapId, config, userBlock, userRow, userSeat
   window.addEventListener('mousemove', onMouseMove);
   window.addEventListener('mouseup', onMouseUp);
 
-  // ── Touch drag + pinch zoom ──
+  // Touch drag + pinch zoom
   let lastDist = 0;
   viewport.addEventListener('touchstart', e => {
     if (e.touches.length === 2) {
@@ -361,8 +393,7 @@ function setupInteraction(container, mapId, config, userBlock, userRow, userSeat
   viewport.addEventListener('touchmove', e => {
     if (e.touches.length === 2 && lastDist) {
       const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-      const scale = d / lastDist;
-      st.zoom = Math.max(0.5, Math.min(10, st.zoom * scale));
+      st.zoom = Math.max(0.5, Math.min(10, st.zoom * (d / lastDist)));
       lastDist = d;
       applyTransform(false);
       e.preventDefault();
@@ -376,7 +407,7 @@ function setupInteraction(container, mapId, config, userBlock, userRow, userSeat
   }, { passive: false });
   viewport.addEventListener('touchend', () => { st.dragging = false; lastDist = 0; });
 
-  // ── Section hover / tooltip ──
+  // Section hover / tooltip
   g.querySelectorAll('.seatmap-sec').forEach(sec => {
     sec.addEventListener('mouseenter', () => {
       const num = parseInt(sec.dataset.section);
@@ -417,7 +448,7 @@ function setupInteraction(container, mapId, config, userBlock, userRow, userSeat
     });
   });
 
-  // ── Level toggles ──
+  // Level toggles
   panel.querySelectorAll('.seatmap-lvl-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       btn.classList.toggle('active');
@@ -429,7 +460,7 @@ function setupInteraction(container, mapId, config, userBlock, userRow, userSeat
     });
   });
 
-  // ── Find My Seats ──
+  // Find My Seats
   const findBtn = panel.querySelector('.seatmap-find-btn');
   if (findBtn) {
     findBtn.addEventListener('click', () => {
