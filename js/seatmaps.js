@@ -405,6 +405,11 @@ const VENUE_IMAGES = {
     nearby: 'assets/boston-nearby.png',
     position: 'Lower Right',
   },
+  'Mercedes-Benz Stadium': {
+    overview: 'assets/atlanta-overview.png',
+    nearby: 'assets/atlanta-nearby.png',
+    position: 'Top',
+  },
 };
 
 function findVenueImages(venue) {
