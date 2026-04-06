@@ -25,54 +25,61 @@ const STADIUMS = {
     fieldW: 72, fieldH: 44,
     angleOffset: 306,           // section X01 starts at NW corner, goes clockwise
     levels: [
-      // — 100 Level (field level, closest to pitch) —
+      // — 100 Level (Cat 1 · gold) —
       {
-        name: '100 Level', color: '#8B6914', hoverColor: '#b8960b',
+        name: 'Cat 1 · 100 Level', color: '#B8860B', hoverColor: '#DAA520',
         inner: 0.30, outer: 0.37,
         totalSlots: 60, baseNum: 101,
         sections: [101,102,103, ...seq(118,125), ...seq(126,130), 142,143, ...seq(144,150)],
       },
-      // — Club 100 (premium suites between 100 and 200, north + south sidelines) —
+      // — Club 100 (Cat 1 · gold) —
       {
-        name: 'Club', color: '#6B5310', hoverColor: '#9a8030', prefix: 'C',
+        name: 'Cat 1 · Club', color: '#9A7209', hoverColor: '#C9A020', prefix: 'C',
         inner: 0.38, outer: 0.43,
         totalSlots: 60, baseNum: 101,
         sections: [...seq(106,115), ...seq(132,139)],
       },
-      // — 200 Level —
+      // — 200 Level (Cat 1 · gold) —
       {
-        name: '200 Level', color: '#1a5c3a', hoverColor: '#22855a',
+        name: 'Cat 1 · 200 Level', color: '#B8860B', hoverColor: '#DAA520',
         inner: 0.45, outer: 0.52,
         totalSlots: 60, baseNum: 201,
         sections: [201, ...seq(203,205), ...seq(215,230), ...seq(240,250)],
       },
-      // — Club 200 (premium suites between 200 and 300) —
+      // — Club 200 (Cat 1 · gold) —
       {
-        name: 'Club 200', color: '#5a4580', hoverColor: '#7c5a9e', prefix: 'C',
+        name: 'Cat 1 · Club 200', color: '#9A7209', hoverColor: '#C9A020', prefix: 'C',
         inner: 0.53, outer: 0.57,
         totalSlots: 60, baseNum: 201,
         sections: [...seq(206,213), ...seq(232,239)],
       },
-      // — 300 Level —
+      // — 300 Level (Cat 2 · red) —
       {
-        name: '300 Level', color: '#3D4A5C', hoverColor: '#6880a0',
+        name: 'Cat 2 · 300 Level', color: '#A03030', hoverColor: '#D04848',
         inner: 0.59, outer: 0.66,
         totalSlots: 60, baseNum: 301,
         sections: [...seq(301,305), ...seq(316,330), ...seq(341,350)],
       },
-      // — Club 300 (premium suites between 300 and 400) —
+      // — Club 300 (Cat 2 · red) —
       {
-        name: 'Club 300', color: '#553070', hoverColor: '#8050a8', prefix: 'C',
+        name: 'Cat 2 · Club 300', color: '#8B2828', hoverColor: '#C04040', prefix: 'C',
         inner: 0.67, outer: 0.71,
         totalSlots: 60, baseNum: 301,
         sections: [...seq(308,314), ...seq(332,339)],
       },
-      // — 400 Level (upper deck, full 60-section ring including end-zone towers) —
+      // — 400 Level main bowl (Cat 2 · red) —
       {
-        name: '400 Level', color: '#8B2C2C', hoverColor: '#d04040',
+        name: 'Cat 2 · 400 Level', color: '#A03030', hoverColor: '#D04848',
         inner: 0.74, outer: 0.88,
         totalSlots: 60, baseNum: 401,
-        sections: seq(401, 460),
+        sections: [...seq(404,418), ...seq(432,448)],
+      },
+      // — 400 Level end zones (Cat 3 · blue) —
+      {
+        name: 'Cat 3 · 400 Level', color: '#2956A0', hoverColor: '#4A80D0',
+        inner: 0.74, outer: 0.88,
+        totalSlots: 60, baseNum: 401,
+        sections: [...seq(401,403), ...seq(419,431), ...seq(449,460)],
       },
     ],
     decorations() {
