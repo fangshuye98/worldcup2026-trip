@@ -394,6 +394,10 @@ const VENUE_IMAGES = {
     overview: 'assets/dallas-overview.png',
     nearby: 'assets/dallas-nearby.png',
   },
+  'SoFi Stadium': {
+    overview: 'assets/la-overview.png',
+    nearby: 'assets/la-nearby.png',
+  },
 };
 
 function findVenueImages(venue) {
