@@ -414,20 +414,20 @@ export function initSeatMaps() {
     const imgs = findVenueImages(venue);
 
     if (imgs) {
-      // Use real screenshots + section detail grid
+      // Real screenshots: overview with zoom callout
       el.innerHTML = `
-        <div class="seatmap-3panel">
-          <div class="seatmap-row-top">
-            <div class="seatmap-img-panel">
-              <div class="seatmap-img-label">🏟️ Stadium Overview</div>
-              <img src="${imgs.overview}" alt="Stadium overview" class="seatmap-img" />
-            </div>
-            <div class="seatmap-img-panel">
-              <div class="seatmap-img-label">📍 Your Area</div>
-              <img src="${imgs.nearby}" alt="Nearby sections" class="seatmap-img" />
+        <div class="seatmap-callout">
+          <div class="seatmap-callout-main">
+            <img src="${imgs.overview}" alt="Stadium overview" class="seatmap-callout-overview" />
+            <div class="seatmap-callout-marker">
+              <div class="seatmap-callout-dot"></div>
+              <div class="seatmap-callout-line"></div>
             </div>
           </div>
-          ${cfg ? `<div class="seatmap-detail">${buildSectionDetail(cfg, block, row, seats)}</div>` : ''}
+          <div class="seatmap-callout-zoom">
+            <div class="seatmap-callout-zoom-label">Section ${block} · Row ${row} · Seats ${seats}</div>
+            <img src="${imgs.nearby}" alt="Your section area" class="seatmap-callout-zoom-img" />
+          </div>
         </div>`;
     } else if (cfg) {
       // Fallback to generated SVGs
@@ -437,7 +437,6 @@ export function initSeatMaps() {
             <div class="seatmap-overview">${buildOverview(cfg, block)}</div>
             <div class="seatmap-nearby">${buildNearbyBlocks(cfg, block, row, seats, level)}</div>
           </div>
-          <div class="seatmap-detail">${buildSectionDetail(cfg, block, row, seats)}</div>
         </div>`;
       setupNearbyInteraction(el);
     }
